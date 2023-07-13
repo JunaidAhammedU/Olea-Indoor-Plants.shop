@@ -1,0 +1,51 @@
+<%-include('../partials/userPartials/header2.ejs')%>
+
+
+
+<div class="hero-wrap hero-bread" style="background-image: url('images/bg_6.jpg');">
+    <div class="container">
+      <div class="row no-gutters slider-text align-items-center justify-content-center">
+        <div class="col-md-9 ftco-animate text-center">
+            <p class="breadcrumbs"><span class="mr-2"><a href="/home">Home</a></span> <span>About</span></p>
+            <h1 class="mb-0 bread">Checkout</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="col-md-4" style="margin-left: 300px;margin-top: 200px;">
+    <div class="row" style="display: flex; justify-content: space-between;">
+        <div class="horizontal" >
+            <h3 class="mb-4 mt-3">LOGIN</h3>
+            <p class=""><span>Name</span>:&nbsp;&nbsp;&nbsp;<span style="color: black;"><%=userName.name%></span></p>
+            <p class="mb-4"><span>Email</span>:&nbsp;&nbsp;&nbsp;<span style="color: black;"><%=userName.mobile%></span></p>
+            <p><a href="/logout" class="btn-custom">Logout and sign in to another account</a></p>
+        </div>
+        <div class="horizontal">
+            <p class="mb-4 mt-3">Advantages of Secure Login</p>
+            <br>
+            <p class="m-0" style="color: black;">Easy Trach Orders,Hassle free Returns</p>
+            <p class="m-0" style="color: black;">Get Relevant Alerts and Recommentation</p>
+            <p class="m-0" style="color: black;">Wishlists,Reviews,Rating and More</p>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-4" style="margin-left: 300px;margin-top: 100px;margin-bottom: 200px;background-color: rgb(235, 235, 235);">
+  <a href="/addAddress"><button class="btn btn-danger m-5">Add Address</button></a>
+  <div class="row">
+ <%
+ if(typeof message != 'undefined'){
+      %>
+      <div class="row">
+        <p class="pl-5" style="color: red;"><%=message%></p>
+      </div>
+      <%
+ }
+ %>
+  
+</div>
+</div>
+
+
+<%-include('../partials/userPartials/footer.ejs')%>

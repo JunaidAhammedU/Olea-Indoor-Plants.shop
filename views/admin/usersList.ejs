@@ -1,0 +1,63 @@
+
+<%- include('../partials/adminPartials/header.ejs') -%>
+
+        <section class="content-main">
+            <div class="content-header">
+                <h2 class="content-title">Users list</h2>
+            </div>
+            <div class="card mb-4">
+                <header class="card-header">
+                    <div class="row gx-3">
+                        <div class="col-lg-4 col-md-6 me-auto">
+                            <input type="text" placeholder="Search..." class="form-control" />
+                        </div>
+                    </div>
+                </header>
+                <!-- card-header end// -->
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Registered</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (users && users.length > 0) { %>
+                                    <% users.forEach(user => { %>
+                                <tr>
+                                    <td><h6 class="mb-0 title"><%= user.name %></h6></td>
+                                    <td><%= user.email %></td>
+                                    <td><%= user.createdAt.toLocaleDateString()%></td>
+
+                                    <% if (user.is_blocked === true) { %>  
+                                    <td><span class="badge rounded-pill alert-danger">Blocked</span></td>
+                                    <td>
+                                        <a href="/admin/userUnblock/<%= user._id %>" class="btn btn-sm font-sm rounded btn-brand"><i class="material-icons md-edit"></i> Unblock </a>
+                                    </td>
+                                    <% }else{ %>
+                                    <td><span class="badge rounded-pill alert-success">Active</span></td>
+                                    <td>
+                                        <a href="/admin/userBlock/<%= user._id %>" class="btn btn-sm font-sm rounded btn-brand"><i class="material-icons md-edit"></i> Block </a>
+                                    </td>
+                                    <% } %>
+
+                                </tr>
+
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td class="text-danger" colspan="7">No products found.</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+<%- include('../partials/adminPartials/footer.ejs') %>

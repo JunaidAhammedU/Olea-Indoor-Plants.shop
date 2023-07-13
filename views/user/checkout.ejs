@@ -1,0 +1,183 @@
+<%- include('../partials/userPartials/header2.ejs') -%>
+
+    <div class="ltn__utilize-overlay"></div>
+
+    <!-- WISHLIST AREA START -->
+    <div class="ltn__checkout-area mb-105">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="ltn__checkout-payment-method mt-50">
+                        <h2 class="title-2">Shipping Address</h2>
+                        <div class="ltn__payment-note mt-30 mb-30">
+                            <% address.forEach((item) => { %>
+                                <h6>Name: <%= item.Fullname %></h6>
+                                <p>Phone: <%= item.phone %></p>
+                                <p>House and Street: <%= item.House_number_and_street %></p>
+                                <p>City: <%= item.City %></p>
+                                <p>Zip: <%= item.Zip %></p>
+                            <% }) %>
+                        </div>
+                    </div>                    
+                </div>
+                <!--  -->
+                <div class="col-lg-6">
+                    <form action="/order" method="post" id="checkout-form">
+                    <div class="shoping-cart-total mt-50">
+                      <h4 class="title-2">Cart Totals</h4>
+                      <table class="table">
+                        <tbody>
+                          <% address.forEach((item) => { %>
+                            <tr>
+                              <td><%= item.productName %> <strong>× <%= item.count %></strong></td>
+                              <td>$<%= item.totalPrice %></td>
+                            </tr>
+                          <% }) %>
+                          <tr>
+                            <td>Shipping and Handing</td>
+                            <td> ₹.00.00</td>
+                          </tr>
+                          <tr>
+                            <td>Discount Offer</td>
+                            <td> ₹.49.99</td>
+                            <input type="number" name="discountAmount" value="50" hidden>
+                          </tr>
+                          <tr>
+                            <td><strong>Order Total</strong></td>
+                            <td><h3><strong> ₹.<%= Total %></strong></h3></td>
+                            <input type="number" id="totalAmount" name="totalAmount" value="<%= Total %>" hidden>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                </div> 
+            </div>
+            <div class="row d-flex align-items-center justify-content-center">
+                <div class="col-lg-8"> 
+                    <div class="ltn__checkout-payment-method mt-50">
+                        <h2 class="title-2">Payment Method</h2>
+                        <div id="checkout_accordion_1">
+                            <!-- card -->
+                            <div class="card">
+                                <h5 class="ltn__card-title" data-bs-toggle="collapse" data-bs-target="#faq-item-2-2" aria-expanded="true"><input type="radio" class="payment_method_radio" id="payment_cod" name="payment_method" value="COD">
+                                    Cash on delivery 
+                                </h5>
+                                <div id="faq-item-2-2" class="collapse show" data-bs-parent="#checkout_accordion_1">
+                                    <div class="card-body">
+                                        <p>Pay with cash upon delivery.</p>
+                                    </div>
+                                </div>
+                            </div>                          
+                            <!-- card -->
+                            <div class="card">
+                                <h5  class="collapsed ltn__card-title" data-bs-toggle="collapse" data-bs-target="#faq-item-2-3" aria-expanded="false"><input type="radio" class="payment_method_radio" id="payment_paypal" name="payment_method" value="onlinePayment">
+                                    PayPal <img src="/userAssets/img/icons/payment-3.png" alt="#">
+                                </h5>
+                                <div id="faq-item-2-3" class="collapse" data-bs-parent="#checkout_accordion_1">
+                                    <div class="card-body">
+                                        <p>Pay via PayPal; you can pay with your credit card if you don’t have a PayPal account.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        
+                        <div class="ltn__payment-note mt-30 mb-30">
+                            <p>Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our privacy policy.</p>
+                        </div>
+                        <button class="btn theme-btn-1 btn-effect-1 text-uppercase" type="submit">Place order</button>
+                        </form>
+                    </div>
+                </div>                 
+            </div>
+        </div>
+    </div>
+    <!-- WISHLIST AREA START -->
+
+    <div class="ltn__call-to-action-area call-to-action-6 before-bg-bottom" data-bs-bg="/userAssets/img/1.jpg--">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="call-to-action-inner call-to-action-inner-6 ltn__secondary-bg position-relative text-center---">
+                        <div class="coll-to-info text-color-white">
+                            <h1>Buy Air purifying indoor plants <br> to protect your loved ones</h1>
+                        </div>
+                        <div class="btn-wrapper">
+                            <a class="btn btn-effect-3 btn-white" href="/">Explore Products <i class="icon-next"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $("#checkout-form").submit((e)=>{
+            e.preventDefault()
+            $.ajax({
+                url:'/order',
+                method:'post',
+                data:$('#checkout-form').serialize(),
+                success:(response)=>{
+                    if(response.codStatus == true){
+                        toastr.success('Order Placed', "OLEA Indoor");
+                        window.location.href = '/';
+                    } else {
+                        razorpayPayment(response.order)
+                    }
+                }
+            })
+        })
+
+        function razorpayPayment(order){
+            var options = {
+                "key": "rzp_test_5EUqANa6OCzfJH",   // Enter the Key ID generated from the Dashboard
+                "amount": order.amount,            // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                "currency": "INR",
+                "name": "Olea indoor plants",       //your business name
+                "description": "Test Transaction",
+                "image": "https://example.com/your_logo",
+                "order_id": order.id,               //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                "handler": function (response){
+                    verifyPayment(response, order); // Call the verifyPayment function
+                },
+                "prefill": {                        //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+                    "name": "Gaurav Kumar",         //your customer's name
+                    "email": "gaurav.kumar@example.com", 
+                    "contact": "9000090000"         //Provide the customer's phone number for better conversion rates 
+                },
+                "notes": {
+                    "address": "Razorpay Corporate Office"
+                },
+                "theme": {
+                    "color": "#419B73"
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+        }
+
+        function verifyPayment(payment,order){
+            $.ajax({
+                url:'/verifyPayment',
+                method:'post',
+                data:{
+                    payment,
+                    order,
+                },
+                success:(response) => {
+                    if (response.success) {
+                        // window.location.href = '/';
+                        alert('Payment Success');
+                    } else {
+                        alert('Payment Failed');
+                    }
+                }
+            })
+        }
+    </script>
+    
+
+    <%- include('../partials/userPartials/footer.ejs') -%>
+
+

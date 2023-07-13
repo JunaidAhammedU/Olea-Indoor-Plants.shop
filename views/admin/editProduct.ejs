@@ -1,0 +1,114 @@
+<%- include('../partials/adminPartials/header.ejs') -%>
+
+<section class="content-main">
+  <% if (products && products.length > 0) { %>
+    <% products.forEach(product => { %>
+
+    <form action="/admin/editProduct/<%= product.id %>" method="post">
+      <div class="row">
+        <div class="col-6">
+          <div class="content-header">
+            <h2 class="content-title">Edit New Product</h2>
+            <div>
+              <button class="btn btn-md rounded font-sm hover-up" type="submit">Update Product</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="card mb-4">
+            <div class="card-body">
+
+              <div class="row">
+                <div class="col-md-3">
+                  <h6>1. General info</h6>
+                </div>
+                <div class="col-md-9">
+
+                  <div class="mb-4">
+                    <label class="form-label">Product title</label>
+                    <input type="text" name="name" placeholder="Type here" class="form-control" value="<%= product.name %>">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">Description</label>
+                    <textarea placeholder="Type here" name="description" class="form-control" rows="4"><%= product.description %></textarea>
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-select">
+                      <% if (category && category.length > 0) { %>
+                        <% for (let i = 0; i < category.length; i++) { %>
+                          <option value="<%= category[i]._id %>"><%= category[i].categorieName %></option>
+                        <% } %>
+                      <% } %>
+                    </select>
+                  </div>
+
+                </div><!-- col.// -->
+              </div><!-- row.// -->
+              <hr class="mb-4 mt-0">
+              <div class="row">
+                <div class="col-md-3">
+                  <h6>2. Pricing</h6>
+                </div>
+                <div class="col-md-9">
+                  <div class="mb-4">
+                    <label class="form-label">Cost in INR</label>
+                    <input type="text" name="price" placeholder="₹00.0" class="form-control" value="<%= product.price %>">
+                  </div>
+                </div>
+              </div>
+              <hr class="mb-4 mt-0">
+              <div class="row">
+                <div class="col-md-3">
+                  <h6>3. Quantity</h6>
+                </div>
+                <div class="col-md-9">
+                  <div class="mb-4">
+                    <label class="form-label">Product Quantity</label>
+                    <input type="text" name="productQuantity" placeholder="Quantity" class="form-control" value="<%= product.productQuantity %>">
+                  </div>
+                </div>
+              </div>
+              <hr class="mb-4 mt-0">
+
+              <div class="row">
+                <div class="col-md-3">
+                  <h6>4. Images</h6>
+                </div>
+                <div class="col-md-9">
+                  <div class="mb-4">
+                    <% product.images.forEach(image => { %>
+                      <img src="/assets/products/<%= image %>" class="img-sm img-thumbnail" alt="Item" />
+                    <% }) %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-3">
+                  <h6>5. Media</h6>
+                </div>
+                <div class="col-md-9">
+                  <div class="mb-4">
+                    <label class="form-label">Upload New Images</label>
+                    <input class="form-control" type="file" name="images" multiple>
+                  </div>
+                </div>
+              </div>
+              
+              <% }) %>
+              <% } else { %>
+                <!--  -->
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+</section>
+
+<%- include('../partials/adminPartials/footer.ejs') -%>
