@@ -1,63 +1,112 @@
-
 <%- include('../partials/adminPartials/header.ejs') -%>
 
-        <section class="content-main">
-            <div class="content-header">
-                <h2 class="content-title">Users list</h2>
-            </div>
-            <div class="card mb-4">
-                <header class="card-header">
-                    <div class="row gx-3">
-                        <div class="col-lg-4 col-md-6 me-auto">
-                            <input type="text" placeholder="Search..." class="form-control" />
-                        </div>
-                    </div>
-                </header>
-                <!-- card-header end// -->
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Registered</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if (users && users.length > 0) { %>
-                                    <% users.forEach(user => { %>
-                                <tr>
-                                    <td><h6 class="mb-0 title"><%= user.name %></h6></td>
-                                    <td><%= user.email %></td>
-                                    <td><%= user.createdAt.toLocaleDateString()%></td>
-
-                                    <% if (user.is_blocked === true) { %>  
-                                    <td><span class="badge rounded-pill alert-danger">Blocked</span></td>
-                                    <td>
-                                        <a href="/admin/userUnblock/<%= user._id %>" class="btn btn-sm font-sm rounded btn-brand"><i class="material-icons md-edit"></i> Unblock </a>
-                                    </td>
-                                    <% }else{ %>
-                                    <td><span class="badge rounded-pill alert-success">Active</span></td>
-                                    <td>
-                                        <a href="/admin/userBlock/<%= user._id %>" class="btn btn-sm font-sm rounded btn-brand"><i class="material-icons md-edit"></i> Block </a>
-                                    </td>
-                                    <% } %>
-
-                                </tr>
-
-                                    <% }) %>
-                                <% } else { %>
-                                    <tr>
-                                        <td class="text-danger" colspan="7">No products found.</td>
-                                    </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Users list</h2>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <!-- Search Input -->
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <form action="/admin/usersList" method="GET">
+                        <input type="text" name="search" placeholder="Search..." class="form-control" value="<%= search || '' %>">
+                        <button type="submit" class="btn btn-sm font-sm rounded btn-brand mt-3">Search</button>
+                    </form>
+                </div>
+                <!-- Status Filter -->
+                <div class="col-lg-2 col-md-3 col-6">
+                    <form action="/admin/usersList" method="GET">
+                        <select class="form-select" name="status">
+                            <option>Choose</option>
+                            <option value="active" <%= status === 'active' ? 'selected' : '' %>>Active</option>
+                            <option value="blocked" <%= status === 'blocked' ? 'selected' : '' %>>Blocked</option>
+                            <option value="">Show all</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm font-sm rounded btn-brand mt-3">Filter</button>
+                    </form>
+                </div>
+                <!-- Items Per Page -->
+                <div class="col-lg-2 col-md-3 col-6">
+                    <form action="/admin/usersList" method="GET">
+                        <select class="form-select" name="itemsPerPage">
+                            <option value="10">Show 10</option>
+                            <option value="20">Show 20</option>
+                            <option value="30">Show 30</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm font-sm rounded btn-brand mt-3">Apply</button>
+                    </form>
                 </div>
             </div>
-        </section>
+        </header>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Registered</th>
+                            <th>Status</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (users && users.length > 0) { %>
+                            <% users.forEach(user => { %>
+                        <tr>
+                            <td><h6 class="mb-0 title"><%= user.name %></h6></td>
+                            <td><%= user.email %></td>
+                            <td><%= user.createdAt.toLocaleDateString()%></td>
+
+                            <% if (user.is_blocked === true) { %>  
+                            <td><span class="badge rounded-pill alert-danger">Blocked</span></td>
+                            <td>
+                                <a href="/admin/userUnblock/<%= user._id %>" class="btn btn-sm font-sm rounded btn-brand"><i class="material-icons md-edit"></i> Unblock </a>
+                            </td>
+                            <% }else{ %>
+                            <td><span class="badge rounded-pill alert-success">Active</span></td>
+                            <td>
+                                <a href="/admin/userBlock/<%= user._id %>" class="btn btn-sm font-sm rounded btn-brand"><i class="material-icons md-edit"></i> Block </a>
+                            </td>
+                            <% } %>
+
+                        </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td class="text-danger" colspan="7">No users found.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+            <!-- table-responsive //end -->
+        </div>
+        <!-- card-body end// -->
+    </div>
+    
+    <!-- Pagination area -->
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <% if (i === currentPage) { %>
+                        <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
+                    <% } else { %>
+                        <li class="page-item"><a class="page-link" href="/admin/usersList?page=<%= i %>&search=<%= search || '' %>&status=<%= status || '' %>&itemsPerPage=<%= ITEMS_PER_PAGE %>"><%= i %></a></li>
+                    <% } %>
+                <% } %>
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/usersList?page=<%= currentPage + 1 %>&search=<%= search || '' %>&status=<%= status || '' %>&itemsPerPage=<%= ITEMS_PER_PAGE %>">
+                            <i class="material-icons md-chevron_right"></i>
+                        </a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+</section>
+
 <%- include('../partials/adminPartials/footer.ejs') %>

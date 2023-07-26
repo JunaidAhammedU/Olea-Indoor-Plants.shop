@@ -22,7 +22,8 @@ const addAddress = async (req,res)=>{
         const addressDetails = await Address.findOne({userId:req.session.user_id});
         if(addressDetails){
             const updatedOne = await Address.updateOne({userId:req.session.user_id},
-                {$push:{addresses:{
+                {$push:
+                {addresses:{
                 Fullname:req.body.Fullname,
                 email:req.body.email,
                 phone:req.body.phone,
@@ -34,7 +35,6 @@ const addAddress = async (req,res)=>{
                 Zip:req.body.Zip,
                 oderMessage:req.body.oderMessage,
             }}});
-
                 if(updatedOne){
                     res.redirect('/checkout');
                 }else{
@@ -74,6 +74,5 @@ const addAddress = async (req,res)=>{
 
 module.exports = {
     loadAddressPage,
-    addAddress
-
+    addAddress,
 }

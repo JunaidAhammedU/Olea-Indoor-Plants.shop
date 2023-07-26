@@ -1,0 +1,316 @@
+    <%- include('../partials/userPartials/header2.ejs') -%>
+
+        <div class="ltn__utilize-overlay"></div>
+
+        <!-- BREADCRUMB AREA START -->
+        <div class="ltn__breadcrumb-area text-left bg-overlay-white-30 bg-image "  data-bs-bg="/userAssets/img/bg/14.jpg">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="ltn__breadcrumb-inner">
+                            <h1 class="page-title">Shop</h1>
+                            <div class="ltn__breadcrumb-list">
+                                <ul>
+                                    <li><a href="/"><span class="ltn__secondary-color"><i class="fas fa-home"></i></span> Home</a></li>
+                                    <li>Shop</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- BREADCRUMB AREA END -->
+
+    <!-- =========================================================================== -->   
+        <!-- PRODUCT DETAILS AREA START -->
+        <div class="ltn_product-area ltn_product-gutter mb-120">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="ltn__shop-options">
+                            <ul>
+                                <li>
+                                    <div class="ltn__grid-list-tab-menu ">
+                                        <div class="nav">
+                                            <a class="active show" data-bs-toggle="tab" href="#liton_product_grid"><i class="fas fa-th-large"></i></a>
+                                            <a data-bs-toggle="tab" href="#liton_product_list"><i class="fas fa-list"></i></a>
+                                        </div>
+                                    </div>
+                                </li>
+                                <!-- <li>
+                                <div class="showing-product-number text-right">
+                                        <span>Showing 1–12 of 18 results</span>
+                                    </div> 
+                                </li> -->
+                                <li>
+                                <div class="short-by text-center">
+                                    <select class="nice-select" name="price" id="price" onchange="sort(this.value)">
+                                        <% if (price === "High") { %>
+                                            <option value="Low">Sort by price: low to high</option>
+                                            <option value="High" selected>Sort by price: high to low</option>
+                                        <% } else { %>
+                                            <option value="Low" selected>Sort by price: low to high</option>
+                                            <option value="High">Sort by price: high to low</option>
+                                        <% } %>
+                                    </select>                                    
+                                    </div> 
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab-content">
+                            <div class="tab-pane fade active show" id="liton_product_grid">
+                                <div class="ltn_product-tab-content-inner ltn_product-grid-view">
+                                    <div class="row">
+                                        <% if (products && products.length > 0) { %>
+                                            <% products.forEach((product, i) => { %>
+                                        <div class="col-xl-4 col-sm-6 col-6">
+                                            <div class="ltn__product-item ltn__product-item-3 text-center">
+                                                <div class="product-img">
+                                                    <a href="product-details/<%= product._id %>"><img src="/assets/products/<%= product.images[0] %>" alt="#"></a>
+                                                    <!-- <div class="product-hover-action">
+                                                        <ul>
+                                                            <li>
+                                                                <a href="#" title="Quick View" data-bs-toggle="modal" data-bs-target="#quick_view_modal">
+                                                                    <i class="far fa-eye"></i>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="#" title="Add to Cart" data-bs-toggle="modal" data-bs-target="#add_to_cart_modal">
+                                                                    <i class="fas fa-shopping-cart"></i>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="#" title="Wishlist" data-bs-toggle="modal" data-bs-target="#liton_wishlist_modal">
+                                                                    <i class="far fa-heart"></i></a>
+                                                            </li>
+                                                        </ul>
+                                                    </div> -->
+                                                </div>
+                                                <div class="product-info">
+                                                    <div class="product-ratting">
+                                                        <ul>
+                                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                                            <li><a href="#"><i class="fas fa-star-half-alt"></i></a></li>
+                                                            <li><a href="#"><i class="far fa-star"></i></a></li>
+                                                        </ul>
+                                                    </div>
+                                                    <h2 class="product-title"><a href="product-details/<%= product._id %>"><%= product.name %></a></h2>
+
+
+                                                    <!-- <div class="product-price">
+                                                        <span>₹<%= product.price %></span>
+                                                        <del>₹ 799</del>
+                                                    </div> -->
+                                                    
+                                                        <div>
+                                                            <% const proOfferMatch = productOffer.find((x) => x.productName.equals(product._id)); %>
+                                                            <% const offerMatch = categoryOffer.find((x) => x.category.equals(product.category)); %>
+                                                            <% if(proOfferMatch && offerMatch){ %>
+                                                                <span class="stext-105 cl3">₹<%= (product.price - ((product.price * (offerMatch.discountPercentage + proOfferMatch.discountPercentage))/100)).toFixed(2) %></span>
+                                                                <span class="text-secondary stext-105 cl3"><s>₹<%= product.price %></s></span>
+                                                                <span class="text-success stext-105 cl3"><%= offerMatch.discountPercentage + proOfferMatch.discountPercentage %>% off</span>
+
+                                                            <% } else if(proOfferMatch && !offerMatch){ %>
+                                                                <span class="stext-105 cl3">₹<%= (product.price - ((product.price * proOfferMatch.discountPercentage)/100)).toFixed(2) %></span>
+                                                                <span class="text-secondary stext-105 cl3"><s>₹<%= product.price %></s></span>
+                                                                <span class="text-success stext-105 cl3"><%= proOfferMatch.discountPercentage %>% off</span>
+
+                                                            <% } else if(offerMatch && !proOfferMatch){ %>
+                                                                <span class="stext-105 cl3">₹<%= (product.price - ((product.price * offerMatch.discountPercentage)/100)).toFixed(2) %></span>
+                                                                <span class="text-secondary stext-105 cl3"><s>₹<%= product.price %></s></span>
+                                                                <span class="text-success stext-105 cl3"><%= offerMatch.discountPercentage %>% off</span>
+
+                                                            <% } else { %>
+                                                                <span class="stext-105 cl3">₹<%= product.price %></span>
+                                                            <% } %>
+                                                        </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!--  -->
+                                        <% }) %>
+                                        <% } else { %>
+                                            <td class="text-danger" colspan="7">No products found.</td>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="liton_product_list">
+                                <div class="ltn__product-tab-content-inner ltn__product-list-view">
+                                    <div class="row">
+                                        <!-- ltn__product-item -->
+                                        <% if (products && products.length > 0) { %>
+                                            <% products.forEach((product, i) => { %>
+                                        <div class="col-lg-12">
+                                            <div class="ltn__product-item ltn__product-item-3">
+                                                <div class="product-img">
+                                                    <a href="product-details/<%= product._id %>"><img src="/assets/products/<%= product.images[0] %>" alt="#"></a>
+                                                    <div class="product-badge">
+                                                        <ul>
+                                                            <li class="sale-badge">New</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="product-info">
+                                                    <h2 class="product-title"><a href="product-details/<%= product.id %>"><%= product.name %></a></h2>
+                                                    <div class="product-ratting">
+                                                        <ul>
+                                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                                            <li><a href="#"><i class="fas fa-star-half-alt"></i></a></li>
+                                                            <li><a href="#"><i class="far fa-star"></i></a></li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <div>
+                                                        <% const proOfferMatch = productOffer.find((x) => x.productName.equals(product._id)); %>
+                                                        <% const offerMatch = categoryOffer.find((x) => x.category.equals(product.category)); %>
+                                                        <% if(proOfferMatch && offerMatch){ %>
+                                                            <span class="stext-105 cl3">₹<%= (product.price - ((product.price * (offerMatch.discountPercentage + proOfferMatch.discountPercentage))/100)).toFixed(2) %></span>
+                                                            <span class="text-secondary stext-105 cl3"><s>₹<%= product.price %></s></span>
+                                                            <span class="text-success stext-105 cl3"><%= offerMatch.discountPercentage + proOfferMatch.discountPercentage %>% off</span>
+
+                                                        <% } else if(proOfferMatch && !offerMatch){ %>
+                                                            <span class="stext-105 cl3">₹<%= (product.price - ((product.price * proOfferMatch.discountPercentage)/100)).toFixed(2) %></span>
+                                                            <span class="text-secondary stext-105 cl3"><s>₹<%= product.price %></s></span>
+                                                            <span class="text-success stext-105 cl3"><%= proOfferMatch.discountPercentage %>% off</span>
+
+                                                        <% } else if(offerMatch && !proOfferMatch){ %>
+                                                            <span class="stext-105 cl3">₹<%= (product.price - ((product.price * offerMatch.discountPercentage)/100)).toFixed(2) %></span>
+                                                            <span class="text-secondary stext-105 cl3"><s>₹<%= product.price %></s></span>
+                                                            <span class="text-success stext-105 cl3"><%= offerMatch.discountPercentage %>% off</span>
+
+                                                        <% } else { %>
+                                                            <span class="stext-105 cl3">₹<%= product.price %></span>
+                                                        <% } %>
+                                                    </div>
+
+                                                    <div class="product-brief">
+                                                        <p><%= product.description %></p>
+                                                    </div>
+                                                    <div class="product-hover-action">
+                                                        <ul>
+                                                            <li>
+                                                                <a href="#" title="Quick View" data-bs-toggle="modal" data-bs-target="#quick_view_modal">
+                                                                    <i class="far fa-eye"></i>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="#" title="Add to Cart" data-bs-toggle="modal" data-bs-target="#add_to_cart_modal">
+                                                                    <i class="fas fa-shopping-cart"></i>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="#" title="Wishlist" data-bs-toggle="modal" data-bs-target="#liton_wishlist_modal">
+                                                                    <i class="far fa-heart"></i></a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!--  -->
+                                        <% }) %>
+                                        <% } else { %>
+                                            <td class="text-danger" colspan="7">No products found.</td>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ltn__pagination-area text-center">
+                            <div class="ltn__pagination">
+                                <ul>
+                                    <% for(i=0;i<totalPage;i++){ %>
+                                        <% if(i+1 == page) { %>
+                                            <!-- <li><a href="#" class="active"><i class="fas fa-angle-double-left"></i></a></li> -->
+
+                                            <li><a href="/shop?page=<%= i+1 %>&value=<%= price %>&category=<%= cat %>&search=<%= Search %>" class="active"><%= i+1 %></a></li>
+                                        <% } else { %>
+                                            <li><a href="/shop?page=<%= i+1 %>&value=<%= price %>&category=<%= cat %>&search=<%= Search %>">
+                                                    <%= i+1 %>
+                                                </a></li>
+                                        <% } %>
+                                    <% } %>
+                                    <!-- <li><a href="#"><i class="fas fa-angle-double-right"></i></a></li> -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <aside class="sidebar ltn_shop-sidebar ltn_right-sidebar">
+                            <!-- Search Widget -->
+                            <div class="widget ltn__search-widget">
+                                <h4 class="ltn_widget-title ltn_widget-title-border">Search Products</h4>
+                                <form action="/shop" method="get">
+                                    <input type="text" name="search" placeholder=" Search your Plants...">
+                                    <button type="submit"><i class="fas fa-search"></i></button>
+                                </form>
+                            </div>
+                            <!-- Category Widget -->
+                            <div class="widget ltn__menu-widget">
+                                <h4 class="ltn_widget-title ltn_widget-title-border">Product categories</h4>
+                                <ul>
+                                    <li><a href="/shop?category=All&value=<%= price %>&search=<%= Search %>">All<span><i
+                                                    class="fas fa-long-arrow-alt-right"></i></span></a></li>
+                                    <% category.forEach(value=>{ %>
+                                        <li><a  class="active" href="/shop?category=<%= value.categorieName %>&value=<%= price %>&search=<%= Search %> "><%= value.categorieName %><span><i class="fas fa-long-arrow-alt-right"></i></span></a></li>
+                                    <% }) %>
+                                </ul>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- PRODUCT DETAILS AREA END -->
+    <!-- =========================================================================== -->
+        <!-- CALL TO ACTION START (call-to-action-6) -->
+        <div class="ltn__call-to-action-area call-to-action-6 before-bg-bottom" data-bs-bg="/userAssets/img/1.jpg--">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="call-to-action-inner call-to-action-inner-6 ltn__secondary-bg position-relative text-center---">
+                            <div class="coll-to-info text-color-white">
+                                <h1>Buy medical disposable face mask <br> to protect your loved ones</h1>
+                            </div>
+                            <div class="btn-wrapper">
+                                <a class="btn btn-effect-3 btn-white" href="shop.html">Explore Products <i class="icon-next"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- CALL TO ACTION END -->
+
+        <script>
+            function sort(value) {
+                // Making an AJAX request to the '/shop' endpoint with the sorting value
+                $.ajax({
+                    url: '/shop',
+                    method: 'POST',
+                    data: {
+                        value: value
+                    }
+                }).done((response) => {
+                    if (response.success) {
+                        // Handle the successful response from the server here
+                        // For example, you can update the product grid/list with the sorted data
+                    }
+                }).fail((error) => {
+                    // Handle any errors that occur during the AJAX request here
+                    console.log(error);
+                });
+            }
+        </script>
+            
+
+        <%- include('../partials/userPartials/footer.ejs') -%>
+
+

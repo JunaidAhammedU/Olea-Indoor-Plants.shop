@@ -1,13 +1,20 @@
 const UserVerification = require("../models/userVerification");
+const loginOtpHelper = require("../helpers/loginOtp");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const User = require("../models/userModel");
 const Product = require("../models/productsModel");
+const Categories = require("../models/categoriesModel");
+const ProductOffer = require("../models/productOfferModel")
+const Offer = require("../models/categorieOfferModel")
 const Order = require("../models/orderModel");
 const Cart = require('../models/cartModel');
 const Address = require('../models/addressModel');
 require("dotenv").config();
+
 //---------------------------------------------------------------
+
+
 
 // Setup bcrypt password
 const securePassword = async (password) => {
@@ -19,6 +26,7 @@ const securePassword = async (password) => {
   }
 };
 
+
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -27,6 +35,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.PASS,
   },
 });
+
+
 
 // Loading Home Page
 const loadHome = async (req, res) => {
@@ -82,7 +92,6 @@ const doRegister = async (req, res) => {
 const sendOTPVerificationEmail = async (email) => {
   try {
     const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
-
     const mailOptions = {
       from: process.env.EMAIL,
       to: email,
@@ -101,6 +110,7 @@ const sendOTPVerificationEmail = async (email) => {
   }
 };
 
+
 //do Verify
 const doVerify = async (req, res) => {
   try {
@@ -113,14 +123,16 @@ const doVerify = async (req, res) => {
       );
       await UserVerification.deleteMany({ email: otpData.email });
       res.redirect("/login");
-      console.log("verification success");
+      console.log("Registration verification success");
     } else {
       res.redirect("/register");
     }
   } catch (error) {
-    res.redirect("/register");
+    console.error("Error occurred while doLogin. ", error);
+    res.status(500).send("Error occurred while doLogin.");
   }
 };
+
 
 // Loading Login Page
 const loadLoginPage = async (req, res) => {
@@ -135,18 +147,18 @@ const loadLoginPage = async (req, res) => {
   }
 };
 
+
 // Do login
 const doLogin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body; 
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       if (existingUser.is_blocked === false) {
         const PASSWORD = await bcrypt.compare(password, existingUser.password);
         if (PASSWORD) {
-          req.session.user_id = existingUser._id;
-          res.redirect("/");
-          console.log("Login successful");
+            req.session.loginData = email;
+          res.redirect("/loadLoginOtpPage");
         } else {
           res.render("./user/login", { message: "invalid email or password" });
         }
@@ -154,13 +166,47 @@ const doLogin = async (req, res) => {
         res.render("./user/login", { message: "Your account is blocked!!" });
       } 
     } else {
-      res.render("./user/login", { message: "invalid email or password" });
+      res.render("./user/login", { message: "invalid email or password" }); 
     }
   } catch (error) {
     console.error("Error occurred while loading doLogin ", error);
     res.status(500).send("Error occurred while loading doLogin.");
   }
 };
+
+
+// Load Login Otp page
+const loadLoginOtpPage = async (req,res)=>{
+  try {
+    const loginData = req.session.loginData;
+    let loginOtpData = await loginOtpHelper.sendLoginOTPEmail(loginData);
+    res.render("./user/loginOtpVerify",{loginOtpData:loginOtpData});
+    req.session.loginData = null;
+  } catch (error) {
+    console.error("Error occurred while loading doLogin ", error);
+    res.status(500).send("Error occurred while loading doLogin.");
+  }
+}
+
+
+// OTP verification in Login Page
+const loginOtp = async (req,res)=>{
+  try {
+    const userData = await User.findOne({ email: req.body.userData});
+    if (userData && req.body.otp === req.body.userOtp) {
+      req.session.user_id = userData._id; // session keeping.
+      res.redirect("/");
+      console.log("Login verification success");
+    } else {
+      res.redirect("/login");
+    }
+  } catch (error) {
+    console.error("Error occurred Post OTP doLogin ", error);
+    res.status(500).send("Error occurred Post OTP doLogin.");
+  }
+}
+
+
 
 // Do logout
 const doLogout = async (req, res) => {
@@ -179,12 +225,229 @@ const loadProductDetailsPage = async (req, res) => {
     let userId = req.session.user_id;
     const productId = req.params.productId;
     const productData = await Product.findOne({ _id: productId });
-    res.render("./user/product-details", { userId, product: productData });
+    const catData = await Categories.findById({_id:productData.category})
+    const catName = catData.categorieName;
+    res.render("./user/product-details", { userId, product: productData,catName });
   } catch (error) {
     console.error("Error occurred while loading product details page ", error);
     res.status(500).send("Error occurred while loading product details page.");
   }
 };
+
+
+// // Load Shop page
+
+const loadShopPage = async (req, res) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = 8;
+    const skip = (page - 1) * limit;
+
+    const price = req.query.value;
+    let category = req.query.category || "All";
+    let Search = req.query.Search || "";
+    Search = Search.trim();
+
+    const categoryData = await Categories.find({ status: true });
+    let cat = categoryData.map((category) => category.categorieName);
+
+    let sort;
+    category === "All" ? (category = [...cat]) : (category = req.query.category.split(","));
+    req.query.value === "High" ? (sort = -1) : (sort = 1);
+    let catId = [];
+
+    for (let i = 0; i < categoryData.length; i++) {
+      if (categoryData[i].categorieName === category[i]) {
+        catId.push(categoryData[i]._id);
+      } else if (req.query.category === "All") {
+        catId.push(categoryData[i]._id);
+      }
+    }
+
+    const productData = await Product.aggregate([
+      {
+        $match: { name: { $regex: "^" + Search, $options: "i" }, category: { $in: catId }, status: true },
+      },
+      { $sort: { price: sort } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+
+    const productCount = await Product.countDocuments({
+      name: { $regex: Search, $options: "i" },
+      status: true,
+      category: { $in: catId },
+    });
+    const totalPage = Math.ceil(productCount / limit);
+    const currentDate = new Date();
+
+    const categoryOfferCheck = await Offer.find();
+    for (const offer of categoryOfferCheck) {
+      if (offer.endDate <= currentDate) {
+        await Offer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+      } else {
+        await Offer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+      }
+    }
+
+    const productOfferCheck = await ProductOffer.find();
+    for (const offer of productOfferCheck) {
+      if (offer.endDate <= currentDate) {
+        await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+      } else {
+        await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+      }
+    }
+
+    const categoryOffer = await Offer.find({ status: "Active" });
+    const productOffer = await ProductOffer.find({ status: "Active" });
+
+    const userName = await User.findOne({ _id: req.session.user_id });
+
+    if (req.session.user_id) {
+      const customer = true;
+      res.render("./user/shop", {
+        customer,
+        userName,
+        products: productData,
+        category: categoryData,
+        page,
+        Search,
+        price,
+        totalPage,
+        cat: category,
+        categoryOffer,
+        productOffer,
+      });
+    } else {
+      const customer = false;
+      res.render("./user/shop", {
+        customer,
+        products: productData,
+        category: categoryData,
+        page,
+        Search,
+        price,
+        totalPage,
+        cat: category,
+        categoryOffer,
+        productOffer,
+      });
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+/* Rest of the code remains unchanged */
+
+
+
+
+// const loadShopPage = async(req,res)=>{
+//   try {
+//     const page = Number(req.query.page) || 1;
+//     const limit = 8;
+//     const skip = (page - 1) * limit;
+
+//     const price = req.query.value;
+//     let category = req.query.category || "All";
+//     let Search = req.query.Search || ""
+//     Search = Search.trim();
+
+//     const categoryData = await Categories.find({ status: true });
+//     let cat = [];
+//     for(let i=0;i<categoryData.length;i++){
+//       cat[i] = categoryData[i].categorieName;
+//     }
+//     // const sample = "Hello,Hi,Tta";
+//     // const s1 = sample.split('');
+//     // console.log(s1);
+//     let sort;
+//     category === "All"? category = [...cat] : category = req.query.category.split(',');
+//     req.query.value === "High" ? (sort = -1) : (sort = 1);
+//     let catId = [];
+
+//     for(let i=0;i<categoryData.length;i++){
+//       if(categoryData[i].categorieName == category[i]){
+//         catId.push(categoryData[i]._id);
+//       }else if(req.query.category === 'All'){
+//         catId.push(categoryData[i]._id); 
+//       }
+//     }
+//     console.log("Data = "+catId);
+//     const productData = await Product.aggregate([
+//       {$match : {name : {$regex : '^'+Search, $options : 'i'},category : {$in : catId}, status : true }},
+//       {$sort : {price : sort}},
+//       {$skip : skip},
+//       {$limit : limit}
+//     ])
+//     console.log("Data = "+productData);
+
+//     const productCount = await Product.countDocuments({
+//       name: { $regex: Search, $options: 'i'},
+//       status:true,
+//       category: { $in:catId}
+//     });
+//     const totalPage = Math.ceil(productCount / limit);    
+//     const currentDate = new Date();
+
+//     const categoryOfferCheck = await Offer.find();
+//     categoryOfferCheck.forEach(async (x) => {
+//       if (x.endDate <= currentDate) {
+//         await Offer.updateOne({ _id: x._id }, { $set: { status: "Expired" } });
+//       } else {
+//         await Offer.updateOne({ _id: x._id }, { $set: { status: "Active" } });
+//       }
+//     });
+//     const productOfferCheck = await ProductOffer.find();
+//     productOfferCheck.forEach(async (x) => {
+//       if (x.endDate <= currentDate) {
+//         await ProductOffer.updateOne(
+//           { _id: x._id },
+//           { $set: { status: "Expired" } }
+//         );
+//       } else {
+//         await ProductOffer.updateOne(
+//           { _id: x._id },
+//           { $set: { status: "Active" }}
+//         );
+//       }
+//     });
+//     const categoryOffer = await Offer.find({ status: "Active" });
+    
+//     //const categoryOffer = await Offer.find({ status: "Active" }).populate("Categories");
+     
+//     const productOffer = await ProductOffer.find({ status: "Active" });
+
+//     const userName = await User.findOne({ _id: req.session.user_id });
+//     // const productData = await Product.find({ status: true })
+//     //   .limit(12)
+//     //   .sort("-createdAt");
+    
+//     if(req.session.user_id){
+//       const customer = true;
+//       res.render('./user/shop',{customer,userName,products:productData,category:categoryData,page,Search,price,totalPage,cat:category,categoryOffer,productOffer});
+       
+//     } else {
+//       const customer = false;
+//       res.render('./user/shop',{customer,products:productData,category:categoryData,page,Search,price,totalPage,cat:category,categoryOffer,productOffer});
+//     } 
+//     // const customer = true;
+//     // res.render('shop',{
+//     //   customer,
+//     //   userName,
+//     //   product: productData,
+//     //   category,
+//     //   categoryOffer,
+//     //   productOffer,});
+//   } catch (error) {
+//     console.log(error.message);
+//   }
+// }
+
+
 
 // Load Account Page
 const loadAccountPage = async (req,res)=>{
@@ -307,6 +570,7 @@ const doForOtpVerify = async (req, res) => {
   }
 };
 
+// forget password 
 const forgetPassword = async(req,res)=>{
   try {
     const {password , confirmPassword} = req.body;
@@ -345,10 +609,13 @@ module.exports = {
   doLogout,
   doVerify,
   loadProductDetailsPage,
+  loadShopPage,
   loadAccountPage,
   changeAcctDetails,
   loadForgetPassword,
   doforgetPassword,
   doForOtpVerify,
-  forgetPassword
+  forgetPassword,
+  loadLoginOtpPage,
+  loginOtp
 };

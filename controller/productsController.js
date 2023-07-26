@@ -2,17 +2,63 @@ const categoriesModel = require("../models/categoriesModel");
 const productsModel = require("../models/productsModel");
 //-------------------------------------------------
 
-//load Products
+const ITEMS_PER_PAGE = 10;
+
+
 const loadProducts = async (req, res) => {
   try {
     const admin = req.session.admin_id;
-    const productdata = await productsModel.find();
-    res.render("./admin/products", { admin: admin, products: productdata });
+    const { search, status, sortBy, page } = req.query;
+
+    const filter = {};
+    if (search) {
+      filter.name = { $regex: search, $options: "i" }; // Case-insensitive search
+    }
+
+    if (status === "active") {
+      filter.status = true;
+    } else if (status === "deleted") {
+      filter.status = false;
+    }
+
+    const sortOptions = {};
+    if (sortBy === "name_asc") {
+      sortOptions.name = 1;
+    } else if (sortBy === "name_desc") {
+      sortOptions.name = -1;
+    } else if (sortBy === "price_asc") {
+      sortOptions.price = 1;
+    } else if (sortBy === "price_desc") {
+      sortOptions.price = -1;
+    }
+
+    const totalCount = await productsModel.countDocuments(filter);
+    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+    const currentPage = parseInt(page) || 1;
+    const skipItems = (currentPage - 1) * ITEMS_PER_PAGE;
+
+    const productData = await productsModel
+      .find(filter)
+      .sort(sortOptions)
+      .skip(skipItems)
+      .limit(ITEMS_PER_PAGE);
+
+    res.render("./admin/products", {
+      admin,
+      products: productData,
+      search,
+      status,
+      sortBy,
+      currentPage,
+      totalPages,
+    });
   } catch (error) {
     console.error("Error occurred while loading Load products page:", error);
     res.status(500).send("Error occurred while loading Load addProducts page.");
   }
 };
+
 
 // add product
 const loadAddProducts = async (req, res) => {
@@ -33,13 +79,11 @@ const AddProducts = async (req, res) => {
     for (let i = 0; i < req.files.length; i++) {
       images[i] = req.files[i].filename;
     }
-    const { name, productQuantity, price, description, status } = req.body;
-    const categoryData = await categoriesModel.findOne({
-      _id: req.body.category,
-    });
+    const { name, productQuantity, price, description, status, category } = req.body;
+    const catData = await categoriesModel.findById({_id:category});
     const productData = new productsModel({
       name,
-      category: categoryData.categorieName,
+      category:catData._id,
       productQuantity,
       description,
       price,
@@ -88,10 +132,8 @@ const loadEditProduct = async (req, res) => {
 const updateProducts = async (req, res) => {
   try {
     const productId = req.params.productId;
-    const categoryData = await categoriesModel.findOne({
-      _id: req.body.category,
-    });
-    const { name, productQuantity, price, description, status } = req.body;
+    const { name, productQuantity, price, description, status, category } = req.body;
+    const catData = await categoriesModel.findById({_id:category});
     const productData = await productsModel
       .findByIdAndUpdate(
         { _id: productId },
@@ -100,7 +142,7 @@ const updateProducts = async (req, res) => {
             name,
             productQuantity,
             description,
-            category: categoryData.categorieName,
+            category:catData._id,
             price,
             status,
           },

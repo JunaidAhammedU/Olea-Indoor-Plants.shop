@@ -4,96 +4,115 @@
 
     <!-- WISHLIST AREA START -->
     <div class="ltn__checkout-area mb-105">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="ltn__checkout-payment-method mt-50">
-                        <h2 class="title-2">Shipping Address</h2>
-                        <div class="ltn__payment-note mt-30 mb-30">
-                            <% address.forEach((item) => { %>
-                                <h6>Name: <%= item.Fullname %></h6>
-                                <p>Phone: <%= item.phone %></p>
-                                <p>House and Street: <%= item.House_number_and_street %></p>
-                                <p>City: <%= item.City %></p>
-                                <p>Zip: <%= item.Zip %></p>
-                            <% }) %>
-                        </div>
-                    </div>                    
-                </div>
-                <!--  -->
-                <div class="col-lg-6">
-                    <form action="/order" method="post" id="checkout-form">
-                    <div class="shoping-cart-total mt-50">
-                      <h4 class="title-2">Cart Totals</h4>
-                      <table class="table">
-                        <tbody>
-                          <% address.forEach((item) => { %>
-                            <tr>
-                              <td><%= item.productName %> <strong>× <%= item.count %></strong></td>
-                              <td>$<%= item.totalPrice %></td>
-                            </tr>
-                          <% }) %>
-                          <tr>
-                            <td>Shipping and Handing</td>
-                            <td> ₹.00.00</td>
-                          </tr>
-                          <tr>
-                            <td>Discount Offer</td>
-                            <td> ₹.49.99</td>
-                            <input type="number" name="discountAmount" value="50" hidden>
-                          </tr>
-                          <tr>
-                            <td><strong>Order Total</strong></td>
-                            <td><h3><strong> ₹.<%= Total %></strong></h3></td>
-                            <input type="number" id="totalAmount" name="totalAmount" value="<%= Total %>" hidden>
-                          </tr>
-                        </tbody>
-                      </table>
+        <form action="/order" method="post" id="checkout-form">
+            <div class="container">
+                <div class="row">
+                    <!-- add new address button -->
+                    <div class="mt-5">
+                        <a href="/addAddress" class="btn btn-success"> Add Address</a>
                     </div>
-                </div> 
-            </div>
-            <div class="row d-flex align-items-center justify-content-center">
-                <div class="col-lg-8"> 
-                    <div class="ltn__checkout-payment-method mt-50">
-                        <h2 class="title-2">Payment Method</h2>
-                        <div id="checkout_accordion_1">
-                            <!-- card -->
-                            <div class="card">
-                                <h5 class="ltn__card-title" data-bs-toggle="collapse" data-bs-target="#faq-item-2-2" aria-expanded="true"><input type="radio" class="payment_method_radio" id="payment_cod" name="payment_method" value="COD">
-                                    Cash on delivery 
-                                </h5>
-                                <div id="faq-item-2-2" class="collapse show" data-bs-parent="#checkout_accordion_1">
-                                    <div class="card-body">
-                                        <p>Pay with cash upon delivery.</p>
+                    <!-- available addresses -->
+                    <% address.forEach((item) => { %>
+                    <div class="col-lg-3 col-md-6 mt-3">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-body">
+                            <input type="radio" value="<%=item.Fullname%>,<%=item.phone%>,<%=item.House_number_and_street%>,<%=item.City%>,<%=item.State%>,<%=item.Zip%>" name="userAddress">
+                            <h5 class="card-title"><%= item.Fullname %></h5>
+                            <h6 class="card-subtitle mb-2 text-muted"><%=item.phone%></h6>
+                            <p class="card-text"><%=item.House_number_and_street%>,<%=item.City%> <br> <%=item.State%>,<%=item.Zip%> </p>
+                            <!-- <a href="#" class="card-link">Edit</a>
+                            <a href="#" class="card-link">Delete</a> -->
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>     
+                    <hr>
+
+                    <!-- Payment Option -->
+                    <div class="col-lg-6"> 
+                        <div class="ltn__checkout-payment-method mt-50">
+                            <h2 class="title-2">Payment Method</h2>
+                            <div id="checkout_accordion_1">
+                                <!-- card -->
+                                <div class="card">
+                                    <h5 class="ltn__card-title" data-bs-toggle="collapse" data-bs-target="#faq-item-2-2" aria-expanded="true"><input type="radio" class="payment_method_radio" id="payment_cod" name="payment_method" value="COD">
+                                        Cash on delivery 
+                                    </h5>
+                                    <div id="faq-item-2-2" class="collapse show" data-bs-parent="#checkout_accordion_1">
+                                        <div class="card-body">
+                                            <p>Pay with cash upon delivery.</p>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>                          
-                            <!-- card -->
-                            <div class="card">
-                                <h5  class="collapsed ltn__card-title" data-bs-toggle="collapse" data-bs-target="#faq-item-2-3" aria-expanded="false"><input type="radio" class="payment_method_radio" id="payment_paypal" name="payment_method" value="onlinePayment">
-                                    PayPal <img src="/userAssets/img/icons/payment-3.png" alt="#">
-                                </h5>
-                                <div id="faq-item-2-3" class="collapse" data-bs-parent="#checkout_accordion_1">
-                                    <div class="card-body">
-                                        <p>Pay via PayPal; you can pay with your credit card if you don’t have a PayPal account.</p>
+                                </div>                      
+                                <!-- card -->
+                                <div class="card">
+                                    <h5  class="collapsed ltn__card-title" data-bs-toggle="collapse" data-bs-target="#faq-item-2-3" aria-expanded="false"><input type="radio" class="payment_method_radio" id="payment_paypal" name="payment_method" value="onlinePayment">
+                                        Online Payment <img src="/userAssets/img/icons/payment-3.png" alt="#">
+                                    </h5>
+                                    <div id="faq-item-2-3" class="collapse" data-bs-parent="#checkout_accordion_1">
+                                        <div class="card-body">
+                                            <p>Available Payment Methods UPI, Net Banking, Credit/Debit.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
+                            
+                            <div class="ltn__payment-note mt-30 mb-30">
+                                <p>Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our privacy policy.</p>
+                            </div>
+                            <button class="btn theme-btn-1 btn-effect-1 text-uppercase" type="submit">Place order</button>
                         </div>
-                        
-                        <div class="ltn__payment-note mt-30 mb-30">
-                            <p>Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our privacy policy.</p>
-                        </div>
-                        <button class="btn theme-btn-1 btn-effect-1 text-uppercase" type="submit">Place order</button>
-                        </form>
                     </div>
-                </div>                 
+                    <!-- Total Amount section  -->
+                        <div class="col-lg-6">
+                            <div class="shoping-cart-total mt-50">
+                            <h2>Cart Totals</h2>
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td>Shipping Charge</td>
+                                        <td>₹.00.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Discount Offer</td>
+                                        <td id="discountAmount">₹.49.99</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Order Total</strong></td>
+                                        <td><h2 class="block-element" >₹.</h2><h2 class="block-element" id="orderTotal"><%= Total %></h2></td>
+                                    </tr>                                                                          
+                                </tbody>
+                            </table>
+                            </div>
+                        </div> 
+                    </div>
+                </div> 
+            </form>
+
+        <!--  -->
+        <div class="container">
+            <div class="row">
+                <!-- <div class="col-md-6 mt-5">
+                    <div class="card">
+                        <div class="card-body">
+                          <p>STUDENT25</p>
+                        </div>
+                    </div>
+                </div> -->
+                <!--  -->
+                <div class="col-md-6 mt-5">
+                    <form id="coupon-form">
+                        <div class="cart-coupon">
+                          <input type="text" id="code" name="cart-coupon" placeholder="Coupon code">
+                          <button type="submit" class="btn theme-btn-2 btn-effect-2">Apply Coupon</button>
+                        </div>
+                    </form>                      
+                </div>
             </div>
-        </div>
+        </div> 
+        <!--  -->
     </div>
     <!-- WISHLIST AREA START -->
-
     <div class="ltn__call-to-action-area call-to-action-6 before-bg-bottom" data-bs-bg="/userAssets/img/1.jpg--">
         <div class="container">
             <div class="row">
@@ -110,14 +129,32 @@
             </div>
         </div>
     </div>
+    
 
+    <!-- Script Aria Starting -->
+    <style>
+        .block-element {
+        display: inline-block;
+    }
+    </style>
     <script>
         $("#checkout-form").submit((e)=>{
             e.preventDefault()
+            
+            const userAddress = $("input[name=userAddress]:checked").val();
+            const payment_method = $("input[name=payment_method]:checked").val();
+            const discountAmount = $("#orderTotal").text();
+            const amount = $("#orderTotal").text();
+
             $.ajax({
                 url:'/order',
                 method:'post',
-                data:$('#checkout-form').serialize(),
+                data:{
+                    userAddress,
+                    payment_method,
+                    discountAmount,
+                    amount,
+                },
                 success:(response)=>{
                     if(response.codStatus == true){
                         toastr.success('Order Placed', "OLEA Indoor");
@@ -167,14 +204,57 @@
                 },
                 success:(response) => {
                     if (response.success) {
-                        // window.location.href = '/';
-                        alert('Payment Success');
+                        window.location.href = '/';
                     } else {
                         alert('Payment Failed');
                     }
                 }
             })
         }
+
+
+        // Apply coupon
+        $("#coupon-form").submit((e) => {
+        e.preventDefault();
+        const code = $("#code").val();
+        const amount = $("#orderTotal").text();
+        $.ajax({
+            url: "/applyCoupon",
+            method: "post",
+            data: {
+            code: code,
+            amount: amount
+            },
+            success: (response) => {
+            console.log(response);
+            if (response.user) {
+                console.log("This user has already used this coupon");
+                toastr.warning("Oops! This user has already used this coupon");
+            } else if (response.limit) {
+                console.log("Coupon limit exceeded");
+                toastr.warning("Oops! Coupon limit exceeded");
+            } else if (response.status) {
+                console.log("This coupon is not in use");
+                toastr.warning("Oops! This coupon is not in use");
+            } else if (response.cartAmount) {
+                console.log("You can't use the coupon... Buy more");
+                toastr.warning("Oops! You can't use the coupon... Buy more");
+            } else if (response.date) {
+                console.log("Coupon date expired");
+                toastr.warning("Oops! Coupon date expired");
+            } else if (response.amountOkey) {
+                document.getElementById('discountAmount').innerText = response.disAmount;
+                document.getElementById('orderTotal').innerText = response.disTotal;
+                console.log("Done");
+                toastr.success("Coupon Added");
+            } else if (response.invalid) {
+                console.log("Invalid coupon");
+                toastr.warning("Oops! Invalid coupon");
+            }
+            }
+        });
+        });
+
     </script>
     
 

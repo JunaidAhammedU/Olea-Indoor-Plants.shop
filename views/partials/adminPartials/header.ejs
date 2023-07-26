@@ -16,6 +16,24 @@
         <link rel="shortcut icon" type="image/x-icon" href="/assets/imgs/theme/favicon.png" />
         <!-- Template CSS -->
         <link href="/assets/css/main.css?v=1.1" rel="stylesheet" type="text/css" />
+        
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+        <!-- You only need to include jQuery once -->
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+        <!--  -->
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/pdfmake.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/vfs_fonts.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+
+
     </head>
 
     <body>
@@ -31,12 +49,14 @@
             </div>
             <nav>
                 <ul class="menu-aside">
+
                     <li class="menu-item active">
                         <a class="menu-link" href="/admin/dashboard">
                             <i class="icon material-icons md-home"></i>
                             <span class="text">Dashboard</span>
                         </a>
                     </li>
+                    <!--  -->
                     <li class="menu-item has-submenu">
                         <a class="menu-link" href="/admin/products">
                             <i class="icon material-icons md-shopping_bag"></i>
@@ -47,23 +67,49 @@
                             <a href="/admin/categories">View Categories</a>
                         </div>       
                     </li>
+                    <!--  -->
                     <li class="menu-item active">
                         <a class="menu-link" href="/admin/addProducts">
                             <i class="icon material-icons md-add_box"></i>
                             <span class="text">Add Products</span>
                         </a>
                     </li>
+                    <!--  -->
                     <li class="menu-item active">
                         <a class="menu-link" href="/admin/usersList">
                             <i class="icon material-icons md-person"></i>
                             <span class="text">Users</span>
                         </a>
                     </li>
+                    <!--  -->
                     <li class="menu-item">
                         <a class="menu-link" href="/admin/orders">
                             <i class="icon material-icons md-shopping_cart"></i>
                             <span class="text">Orders</span>
                         </a>
+                    </li>
+                    <!--  -->
+                    <li class="menu-item has-submenu">
+                        <a class="menu-link" href="/admin/coupon">
+                            <i class="icon material-icons md-local_offer"></i>
+                            <span class="text">Coupon</span>
+                        </a> 
+                        <div class="submenu">
+                            <a href="/admin/coupon">Add Coupon</a>
+                            <a href="/admin/viewCouponList">View Available Coupon</a>
+                        </div>       
+                    </li>
+                    <!--  -->
+                    <li class="menu-item has-submenu">
+                        <a class="menu-link" href="/admin/offer">
+                            <i class="icon material-icons md-stars"></i>
+                            <span class="text">Offer</span>
+                        </a> 
+                        <div class="submenu">
+                            <a href="/admin/offer">Offer</a>
+                            <a href="/admin/addProductOffer">Product Offer</a>
+                            <a href="/admin/addCategoryOffer">Category Offer</a>
+                        </div>       
                     </li>
                 </ul>
                 <br />

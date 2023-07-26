@@ -31,6 +31,7 @@ const loadCartPage = async (req, res) => {
         customer: true,
         userName,
         products,
+        cartData,
         Total,
         userId
       });
@@ -56,17 +57,27 @@ const addToCart = async (req, res) => {
     if (req.session.user_id) {
       const userId = req.session.user_id;
       const cartData = await Cart.findOne({ userName: userId });
+      // 
 
+      const exist = cartData.products.filter((value) => value.productId.toString() == productId)
+      if (exist.length !== 0) {
+          if (exist[0].quantity < productData.productQuantity) {
+             
+          } else {
+              res.status(200).json({ success: false, message: 'Reached the limit' });
+          }
+      }
+      // 
       if (cartData) {
         const productExist = cartData.products.findIndex(
-          (product) => product.productId.toString() === productId
-        );
+          (product) => product.productId.toString() === productId );
         
         if (productExist !== -1) {
           await Cart.updateOne(
             { userName: userId, 'products.productId': productId },
             { $inc: { 'products.$.count': 1 } }
           );
+
         } else {
           await Cart.findOneAndUpdate(
             { userName: req.session.user_id },
@@ -92,7 +103,7 @@ const addToCart = async (req, res) => {
           ]
         });
 
-        await cart.save();
+        await cart.save(); 
       }
 
       res.redirect('/cart');
@@ -117,25 +128,60 @@ const removeProduct = async (req, res) => {
   }
 };
 
+//===================================================================================
+// // change product quantity
+// const changeProductQuantity = async (req, res) => {
+//   try {
+//     const userId = req.body.user;
+//     const proId = req.body.product;
+//     let count = req.body.count;
+//     count = parseInt(count);
+
+//     const cartData = await Cart.findOne({ userName: userId });
+//     const [{ count: quantity }] = cartData.products;
+
+//     const productData = await Product.findOne({ _id: proId });
+//     if (productData.stockQuantity < quantity + count) {
+//       res.json({ check: true });
+//     } else {
+//       await Cart.updateOne({ userName: userId, "products.productId": proId }, 
+//       { $inc: { "products.$.count": count } });
+//       res.json({ success: true });
+//     }
+//   } catch (error) {
+//     console.log(error.message);
+//   }
+// };
+//===================================================================================
+
 // change product quantity
 const changeProductQuantity = async (req, res) => {
   try {
-    const userId = req.body.user;
+    const cartId = req.body.cart;
     const proId = req.body.product;
     let count = req.body.count;
+    let quantity = req.body.quantity;
     count = parseInt(count);
+    quantity = parseInt(quantity);
 
-    const cartData = await Cart.findOne({ userName: userId });
-    const [{ count: quantity }] = cartData.products;
+    if (count == -1 && quantity == 1) {
+      await Cart.
+      updateOne({ _id: cartId },
+        {
+           $pull: { products:{ productId:proId }} 
+        }
+      );
+      res.json({removeProduct:true})
 
-    const productData = await Product.findOne({ _id: proId });
-    if (productData.stockQuantity < quantity + count) {
-      res.json({ check: true });
     } else {
-      await Cart.updateOne({ userName: userId, "products.productId": proId }, 
-      { $inc: { "products.$.count": count } });
-      res.json({ success: true });
+
+      await Cart.updateOne(
+        { _id: cartId, 'products.productId': proId },
+        { $inc: { 'products.$.count': count } }
+      );
+      res.json(true)
     }
+
   } catch (error) {
     console.log(error.message);
   }
@@ -152,12 +198,13 @@ const loadCheckout = async(req,res)=>{
           if(addressData){
               if(addressData.addresses.length>0){
                   const address = addressData.addresses;
+                  
                   const total = await Cart.aggregate([{$match:{user:userName.name}},
                     {$unwind:"$products"},
                     {$project:{productPrice:"$products.productPrice",count:"$products.count"}},
                     {$group:{_id:null,total:{$sum:{$multiply:["$productPrice","$count"]}}}}]);
 
-                  if(total[0].total>= userName.wallet){
+                  if(total[0].total >= userName.wallet){
                       const Total = total[0].total
                       const grandTotal = (total[0].total) - userName.wallet ;
                       let customer = true;
@@ -168,7 +215,6 @@ const loadCheckout = async(req,res)=>{
                       let customer = true;
                       res.render('./user/checkout',{customer,userName,address,Total,grandTotal,addressData});
                   }
-
               }else{
                   let customer = true;
                   res.render('./user/addAddress',{customer,userName,message:"Add your delivery address"});
@@ -185,7 +231,7 @@ const loadCheckout = async(req,res)=>{
   }
 }
 
-module.exports = {
+module.exports = {  
   loadCartPage,
   addToCart,
   changeProductQuantity,

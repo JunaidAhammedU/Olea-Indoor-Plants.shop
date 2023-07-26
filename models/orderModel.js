@@ -1,23 +1,15 @@
 const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
-    House_number_and_street:{
+    order_Id:{
         type:String,
         required:true
     },
-    userEmail:{
-        type:String,
-        required:true
-    },
-    userPhone:{
-        type:String,
-        required:true
-    },
-    userCityAdd:{
+    userAddress:{
         type:String,
         required:true
     },
     userId:{
-        type:String,
+        type:String, 
         required:true
     },
     userName:{

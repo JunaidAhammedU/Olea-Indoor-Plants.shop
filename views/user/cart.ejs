@@ -45,7 +45,7 @@
                                             <h4><a href="product-details.html"><%= product.productId.name %></a></h4>
                                           </td>
                                           
-                                          <td>
+                                          <!-- <td>
                                             <% if (product.count <= 0) { %>
                                               <span id="quantity" name="count" class="quantity"><%= product.count %></span>
                                               <button type="button" class="quantity-right-plus btn" onclick="changeQuantity('<%= userId %>','<%= product.productId._id %>', 1)">+</button>
@@ -54,6 +54,12 @@
                                               <span id="quantity" name="count" class="quantity"><%= product.count %></span>
                                               <button type="button" class="quantity-right-plus btn" onclick="changeQuantity('<%= userId %>','<%= product.productId._id %>', 1)">+</button>
                                             <% } %>
+                                          </td> -->
+
+                                          <td>
+                                            <button type="button" class="quantity-left-minus btn" onclick="changeQuantity('<%= cartData._id %>','<%= product.productId._id %>',-1)">-</button>
+                                              <span id="<%= product.productId._id %>" name="count" class="quantity"><%= product.count %></span> 
+                                             <button type="button" class="quantity-right-plus btn" onclick="changeQuantity('<%= cartData._id %>','<%= product.productId._id %>',1)">+</button>
                                           </td>
 
                                           <td class="cart-product-subtotal">$<%= product.productId.price %></td>
@@ -63,14 +69,9 @@
                                     <tr class="cart-coupon-row">
                                         <td colspan="6">
                                           <div class="cart-coupon">
-                                            <input type="text" name="cart-coupon" placeholder="Coupon code">
-                                            <button type="submit" class="btn theme-btn-2 btn-effect-2">Apply Coupon</button>
                                             <button type="submit" class="btn theme-btn-2 btn-effect-2"><a href="/">Shope More</a></button>
                                           </div>
                                         </td>
-                                        <!-- <td>
-                                          <button type="submit" class="btn theme-btn-2 btn-effect-2-- disabled">Update Cart</button>
-                                        </td> -->
                                     </tr>
                                 </tbody>
                             </table>
@@ -89,7 +90,7 @@
                                     </tr>
                                     <tr>
                                         <td><strong>Order Total</strong></td>
-                                        <td><strong><h4>₹<span><%= Total %></span></h4></strong></td>
+                                        <td><strong><h4>₹<span id="totalAmount"><%= Total %></span></h4></strong></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -124,34 +125,28 @@
 
 
     <script>
-        function changeQuantity(userId, proId, count) {
+        function changeQuantity(cartId, proId, count) {
+          let quantity = parseInt(document.getElementById(proId).innerHTML);
+            count = parseInt(count)
           $.ajax({
-            url: '/changeProductQuantity',
-            data: {
-              user: userId,
+            url:'/changeProductQuantity',
+            data:{
+              cart: cartId,
               product: proId,
-              count: count
+              count: count,
+              quantity:quantity,
             },
-            method: 'post',
-            success: function (data) {
-              if (data.success) {
+            method:'post',
+            success:(response)=>{
+              if (response.removeProduct){
+                alert('product removed from cart');
                 location.reload();
-              } else if (data.check) {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Oops...',
-                  text: 'Out Of Stock!'
-                });
-              }
-            },
-            error: function (xhr, status, error) {
-              console.log(error);
+              } else {
+                document.getElementById(proId).innerHTML = quantity + count;
+              }           
             }
-          });
+          })
         }
       </script>
       
-
     <%- include('../partials/userPartials/footer.ejs') -%>
-
-

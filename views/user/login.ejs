@@ -20,6 +20,9 @@
     <link rel="stylesheet" href="userAssets/css/style.css">
     <!-- Responsive css -->
     <link rel="stylesheet" href="userAssets/css/responsive.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 </head>
 
 <body>
@@ -183,8 +186,12 @@
                 <div class="col-lg-6">
                     <div class="account-login-inner">
                         <form action="/login" method="post" class="ltn__form-box contact-form-box">
-                            <input type="text" name="email" placeholder="Email*">
-                            <input type="password" name="password" placeholder="Password*">
+                        <!-- <form action="/login" method="post" class="ltn__form-box contact-form-box" onsubmit="event.preventDefault(); doLogin();"> -->
+                            <input type="text" name="email" placeholder="Email*" id="email">
+
+                            <!-- <input type="password" name="password" id="password" placeholder="Password*"> -->
+                            <input type="password" name="password" id="password" placeholder="Password*">
+                            <p style="font-size: 10px; color: rgb(104, 104, 104);"><a href="#" id="showPasswordBtn" onclick="showPassword()">Show Password</a></p>
 
                             <% if (typeof message !== "undefined") { %>
                                 <p class="text-danger"><%= message %></p>
@@ -356,8 +363,55 @@
     <script src="userAssets/js/plugins.js"></script>
     <!-- Main JS -->
     <script src="userAssets/js/main.js"></script>
-  
-</body>
+    <script>
+        function showPassword(event) {
+          event.preventDefault();
+      
+          var passwordInput = document.getElementById("password");
+          var showPasswordBtn = document.getElementById("showPasswordBtn");
+      
+          if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            showPasswordBtn.textContent = "Hide Password";
+          } else {
+            passwordInput.type = "password";
+            showPasswordBtn.textContent = "Show Password";
+          }
+        }
+      
+        document.getElementById("showPasswordBtn").addEventListener("click", showPassword);
+      
+        // AJAX login
+        // function doLogin() {
+        //   const email = document.getElementById("email").value;
+        //   const password = document.getElementById("password").value;
+      
+        //   $.ajax({
+        //     url: "/login",
+        //     method: 'post',
+        //     data: {
+        //       email,
+        //       password,
+        //     },
+        //     success: (response) => {
+        //       if (response.status === "invalidemail_password" || response.status === "account_blocked") {
+        //         // Show toastr alert for login failure
+        //         toastr.error("Invalid email or password, or the account is blocked.");
+        //       } else {
+        //         // Handle successful login (if needed)
+        //         toastr.success("Login successful!");
+        //         // Redirect to another page, if required
+        //         window.location.href = "/loginOtpData"; 
+        //       }
+        //     },
+        //     error: (error) => {
+        //       // Show toastr alert for server error
+        //       toastr.error("An error occurred while trying to log in.");
+        //     }
+        //   });
+        // }
+      </script>
+      
 
-<!-- Mirrored from tunatheme.com/tf/html/vicodin-preview/vicodin/login.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 04 Feb 2023 07:16:33 GMT -->
+</body>
 </html>

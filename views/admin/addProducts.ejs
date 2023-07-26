@@ -35,11 +35,9 @@
                                     <div class="mb-4">
                                         <label class="form-label">Category</label>
                                         <select name="category" class="form-select">
-
                                           <% category.forEach(catData => { %>
                                             <option value="<%= catData._id %>"><%= catData.categorieName %></option>
                                           <% }) %>
-                                          
                                         </select>
                                     </div>
                                     

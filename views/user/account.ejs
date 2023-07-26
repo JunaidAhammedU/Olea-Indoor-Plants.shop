@@ -19,7 +19,7 @@
                                             <a data-bs-toggle="tab" href="#liton_tab_1_2">Orders <i class="fas fa-file-alt"></i></a>
                                             <a data-bs-toggle="tab" href="#liton_tab_1_4">address <i class="fas fa-map-marker-alt"></i></a>
                                             <a data-bs-toggle="tab" href="#liton_tab_1_5">Account Details <i class="fas fa-user"></i></a>
-                                            <a href="/logout">Logout <i class="fas fa-sign-out-alt"></i></a>
+                                            <a href="/logout" onclick="return confirm('Are you sure you want to Logout?');">Logout <i class="fas fa-sign-out-alt"></i></a>
                                         </div>
                                     </div>
                                 </div>
@@ -29,6 +29,7 @@
                                             <div class="ltn__myaccount-tab-content-inner">
                                                 <p>Hello <strong><%= user.name %></strong></p>
                                                 <p>From your account dashboard you can view your <span>recent orders</span>, manage your <span>shipping and billing addresses</span>, and <span>edit your password and account details</span>.</p>
+                                                <h3>WALLET : <strong>₹.<%= user.wallet %>.00</strong></h3>
                                             </div>
                                         </div>
                                         <!--  -->
@@ -37,6 +38,7 @@
                                                 <div class="table-responsive">
                                                     <table class="table">
 
+                                                        <% if (order && order.length > 0) { %>
                                                         <thead>
                                                             <tr>
                                                                 <th>No#</th>
@@ -48,24 +50,31 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            
                                                             <% order.forEach((orderItem, index) => { %>
-                                                                <% if (orderItem.status !== 'cancelled') { %>
-                                                                    <tr>
-                                                                        <td><%= index + 1 %></td>
-                                                                        <td><%= orderItem.products[0].productId %></td>
-                                                                        <td><%= orderItem.date.toDateString() %></td>
-                                                                        <td><%= orderItem.status %></td>
-                                                                        <td>$<%= orderItem.totalAmount %></td>
-                                                                        <td><a href="/cancel_order?id=<%= orderItem._id%>" onclick="return confirm('Are you sure you want to Cancle this Order?');" class="text-danger" >Cancle my order</a></td>
-                                                                    </tr>
-                                                                <% } else { %>
-                                                                    <td><p class="text-secondary"> no orders yet!</p></td>
+                                                            <tr>
+                                                                <td><%= index + 1 %></td>
+                                                                <td><%= orderItem.order_Id %></td>
+                                                                <td><%= orderItem.date.toDateString() %></td>
+                                                                <td><%= orderItem.status %></td>
+                                                                <td>₹ <%= orderItem.totalAmount %></td>
+                                                                <% if (orderItem.status === 'placed') { %>
+                                                                <td><a href="/cancel_order?id=<%= orderItem._id%>" id="cancleOrder" onclick="return confirm('Are you sure you want to Cancle this Order?');" class="btn btn-white text-danger" >Cancle my order</a></td>
                                                                 <% } %>
-                                                            <% }) %>
-                        
+                                                                <% if (orderItem.status === 'pending') { %>
+                                                                <td><a href="/cancel_order?id=<%= orderItem._id%>" id="cancleOrder" onclick="return confirm('Are you sure you want to Cancle this Order?');" class="btn btn-white text-danger" >Cancle my order</a></td>
+                                                                <% } %> 
+                                                                <% if (orderItem.status === 'delivered') { %>
+                                                                <td><a href="#" onclick="return confirm('Are you sure you want to Return this Order?');" > <p class="text-info">Return my order</p> </a></td>
+                                                                <% } %>
+                                                                <% if (orderItem.status === 'cancelled') { %>
+                                                                <td> <p class="text-danger">Order Cancelled!</p> </td>
+                                                                <% } %>
+                                                            </tr>
                                                         </tbody>
-
+                                                        <% }) %>
+                                                        <% } else { %>
+                                                            <td><h4>No orders yet!!</h4> <a href="/shop" class="text-success"> Shop Now</a></td>
+                                                        <% } %>
                                                     </table>
                                                 </div>
                                             </div>
@@ -152,6 +161,43 @@
         </div>
     </div>
     <!-- WISHLIST AREA START -->
+
+
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "slideDown",
+            "hideMethod": "fadeOut"
+        };
+    
+        function cancleOrder(id) {
+            $.ajax({
+                url: "/addToWishlist",
+                method: 'post',
+                data: {
+                    query: id
+                },
+                success: (response) => {
+                    if (response.success) {
+                        toastr.success("Added To Wishlist");
+                    } else if (response.check) {
+                        toastr.warning("Already added to Wishlist!!");
+                    }
+                }
+            });
+        }
+    </script>
 
 <%- include('../partials/userPartials/footer.ejs') -%>
 

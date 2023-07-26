@@ -1,29 +1,8 @@
 <%- include('../partials/userPartials/header2.ejs') -%>
 
     <div class="ltn__utilize-overlay"></div>
-
-    <!-- BREADCRUMB AREA START -->
-    <!-- <div class="ltn__breadcrumb-area text-left bg-overlay-white-30 bg-image"  data-bs-bg="/userAssets/img/bg/14.jpg">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="ltn__breadcrumb-inner">
-                        <h1 class="page-title">Product Details</h1>
-                        <div class="ltn__breadcrumb-list">
-                            <ul>
-                                <li><a href="index.html"><span class="ltn__secondary-color"><i class="fas fa-home"></i></span> Home</a></li>
-                                <li>Product Details</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
-    <!-- BREADCRUMB AREA END -->
-
+    
     <!-- SHOP DETAILS AREA START -->
-
         <div class="ltn__shop-details-area pb-85 mt-5 text-center">
             <div class="container">
                 <div class="row">
@@ -77,7 +56,7 @@
                                                 <li>
                                                     <strong>Categories:</strong> 
                                                     <span>
-                                                        <a href="#"><%= product.category%></a>
+                                                        <a href="#"><%= catName %></a>
                                                     </span>
                                                 </li>
                                             </ul>
@@ -91,7 +70,7 @@
                                                 </li> -->
                                                 <li>
                                                     <!-- class="theme-btn-1 btn btn-effect-1" title="Add to Cart" data-bs-toggle="modal" data-bs-target="#add_to_cart_modal" -->
-                                                    <a href="/add-to-cart/<%= product.id %>" class="btn btn-success">
+                                                    <a href="/add-to-cart/<%= product._id %>" class="btn btn-success">
                                                         <i class="fas fa-shopping-cart"></i>
                                                         <span>ADD TO CART</span>
                                                     </a>
@@ -101,10 +80,10 @@
                                         <div class="ltn__product-details-menu-3">
                                             <ul>
                                                 <li>
-                                                    <a href="#" class="" title="Wishlist" data-bs-toggle="modal" data-bs-target="#liton_wishlist_modal">
+                                                    <button class="text-success" onclick="addToWishlist('<%= product._id %>')">
                                                         <i class="far fa-heart"></i>
                                                         <span>Add to Wishlist</span>
-                                                    </a>
+                                                    </button>
                                                 </li>
                                                 <li>
                                                     <a href="#" class="" title="Compare" data-bs-toggle="modal" data-bs-target="#quick_view_modal">
@@ -604,6 +583,45 @@
             transform: scale(1.2);
         }
     </style>
+
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "3000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "slideDown",
+            "hideMethod": "fadeOut"
+        };
+        
+        function addToWishlist(id) {
+            $.ajax({
+                url: "/addToWishlist",
+                method: 'post',
+                data: {
+                    query: id
+                },
+                success: (response) => {
+                    if (response.success) {
+                        toastr.success("Added To Wishlist");
+                    } else if (response.check) {
+                        toastr.warning("Already added to Wishlist!!");
+                    }else{
+
+                    }
+                }
+            });
+        }
+    </script>
+    
 
     
 

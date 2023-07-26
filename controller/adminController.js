@@ -1,7 +1,10 @@
 const User = require("../models/userModel");
 const Order = require("../models/orderModel");
+const Product = require("../models/productsModel");
+const Category = require("../models/categoriesModel");
 const bcrypt = require("bcrypt");
 //-----------------------------------------------------
+const ITEMS_PER_PAGE = 10;
 
 // load login page of admin
 const loadLogin = async (req, res) => {
@@ -20,7 +23,7 @@ const dologinAdmin = async (req, res) => {
     if (adminData) {
       const PASSWORD = await bcrypt.compare(password, adminData.password);
       if (PASSWORD && email === adminData.email) {
-        req.session.admin_id = adminData._id;
+        req.session.admin_id = adminData._id; // session keeping.
         res.redirect("/admin/dashboard");
       } else {
         res.render("./admin/adminLogin",{message:"invalid email or password"});
@@ -58,17 +61,55 @@ const loadDashboard = async (req, res) => {
   }
 };
 
-//  Load user list
+
+// user list.
 const loadUsersList = async (req, res) => {
   try {
     const admin = req.session.admin_id;
-    const userData = await User.find();
-    res.render("./admin/usersList", { admin: admin, users: userData });
+    let { search, status, page, itemsPerPage } = req.query;
+    page = parseInt(page) || 1;
+    itemsPerPage = parseInt(itemsPerPage) || ITEMS_PER_PAGE;
+
+    const query = {};
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: new RegExp(search, 'i') } },
+        { email: { $regex: new RegExp(search, 'i') } },
+      ];
+    }
+
+    if (status) {
+      if (status === 'active') {
+        query.is_blocked = false;
+      } else if (status === 'blocked') {
+        query.is_blocked = true;
+      }
+    }
+
+    const totalUsers = await User.countDocuments(query);
+    const totalPages = Math.ceil(totalUsers / itemsPerPage);
+
+    const users = await User.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * itemsPerPage)
+      .limit(itemsPerPage);
+
+    res.render('./admin/usersList', {
+      admin: admin,
+      users: users,
+      search,
+      status,
+      currentPage: page,
+      totalPages,
+      ITEMS_PER_PAGE,
+    });
   } catch (error) {
-    console.error("Error occurred while loading Load products page:", error);
-    res.status(500).send("Error occurred while loading Load addProducts page.");
+    console.error('Error occurred while loading Load products page:', error);
+    res.status(500).send('Error occurred while loading Load addProducts page.');
   }
 };
+
 
 // Do user block
 const usersBlock = async (req, res) => {
@@ -86,6 +127,8 @@ const usersBlock = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
+    console.error('Error occurred while loading user block  page:', error);
+    res.status(500).send('Error occurred while loading user block  page.');
   }
 };
 
@@ -108,18 +151,49 @@ const usersUnblock = async (req, res) => {
   }
 };
 
-// Load Orders
+
+
+// load orders
 const loadOrders = async (req, res) => {
   try {
     const admin = req.session.admin_id;
-    const orders = await Order.find();
+    let { search, status, page, itemsPerPage } = req.query;
+    page = parseInt(page) || 1;
+    itemsPerPage = parseInt(itemsPerPage) || ITEMS_PER_PAGE;
+
+    const query = {};
+
+    if (search) {
+      query.order_Id = search;
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    const totalOrders = await Order.countDocuments(query);
+    const totalPages = Math.ceil(totalOrders / itemsPerPage);
+
+    const orders = await Order.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * itemsPerPage)
+      .limit(itemsPerPage);
+
     if (orders) {
-      res.render("./admin/orders",{admin:admin, order: orders, });
+      res.render('./admin/orders', {
+        admin: admin,
+        order: orders,
+        search,
+        status,
+        currentPage: page,
+        totalPages,
+        ITEMS_PER_PAGE,
+      });
     } else {
-      res.render("./admin/orders",{admin:admin,messsage:"No order placed!!"});
+      res.render('./admin/orders', { admin: admin, message: 'No order placed!!' });
     }
   } catch (error) {
-    console.log("admin orders page error");
+    console.log('admin orders page error');
   }
 };
 

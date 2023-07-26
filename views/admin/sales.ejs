@@ -1,0 +1,456 @@
+<%- include('../includes/admin/adminHead.ejs') %>
+<%- include('../includes/admin/adminNavbar.ejs') %>
+<style>
+    .dropdown-menu a:hover{
+        color: white!important;
+        cursor: pointer;
+    }
+    .pagination-btn{
+    padding: 50px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    }
+    .pagination-btn a{
+        text-decoration: none;
+        color: #ececec;
+    }
+    .pagination-btn a :hover{
+        color: #111;
+    }
+    .pagination-btn button:hover{
+        color: #111;
+    }
+    .pagination-btn button:active{
+        background-color: #fff;
+        color: #111!important;
+    }
+    
+</style>
+
+<div class="main-panel">
+    <div class="content-wrapper">
+      <% if ( seeAll ) { %>
+        <div><a class="badge badge-outline-primary" href="/admin/sales-report">Show less</a></div>
+        <% } else { %>
+          <div><a class="badge badge-outline-primary" href="/admin/sales-report?seeAll=seeAll">Show all</a></div>
+      <% } %>
+
+<div class="row mt-5">
+    <div class="col-12 grid-margin">
+      <div class=" row   mt-3">
+
+        <div class="col-3 col-sm-6">
+          <div class="row m-0">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <div class="col-sm-12">
+                  <form action="/admin/sales-report">
+                  <select class="form-control" name="sortData">
+                    <option value="date" >Date</option>
+                    <option value="totalPrice" >Amount</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group row">
+                <div class="col-sm-12">
+                  <select class="form-control" name="sortOrder">
+                    <option>Ascending</option>
+                    <option>Descending</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="sort form-group "><button class=" btn btn-primary form-control">
+              sort
+            </button></div>
+          </form>
+          </div>
+        </div>
+
+        </div>
+
+        <div class="row">
+        <form action="/admin/sales-report<% if(seeAll){ %>?seeAll=seeAll<% } %>" id="sales-report-form">
+            <label for="birthday">From :</label>
+            <input style="background-color: #dcdcdc; border-radius: 5px; border: none; padding: 0px 10px;" value="<%= from %>" type="date" id="from" name="from">
+            <label class="ml-3" for="birthday">To :</label>
+            <input style="background-color: #dcdcdc; border-radius: 5px; border: none; padding: 0px 10px;" value="<%= to %>" type="date" id="to" name="to">
+            <button class="btn btn-primary ml-3" type="submit">filter</button>
+        </form>
+        
+        <button type="button" id="excel-export" class="btn btn-success btn-icon-text ml-auto mb-1"> Excel <i class="mdi mdi-printer btn-icon-append"></i>
+        <button type="button" onclick="printDiv('Print')" class="btn btn-info btn-icon-text ml-1 mr-auto mb-1"> Print <i class="mdi mdi-printer btn-icon-append"></i>
+        </button>
+    </div>
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Recent sales</h4>
+          <div class="table-responsive" id="Print">
+            <table class="table" id="sales-table">
+              <thead>
+                <tr>
+                  <th> Date </th>
+                  <th> OrderId </th>
+                  <th> Payment </th>
+                  <th> Amount </th>
+                  <th> Order Status </th>
+                </tr>
+              </thead>
+              <tbody>
+
+                <% for ( let order of orders ) { %>
+                <tr>
+                  <td> <%= moment(order.date).format(shortDateFormat) %> </td>
+                  <td> <%= order._id %> </td>
+                  <td> <%= order.paymentMethod %> </td>
+                  <td> <%= order.totalPrice %> </td>
+                  <td id="order-status-<%= order._id %>"> <% if(order.orderStatus) { %> <%= order.orderStatus %> <% } else { %> Pending <% } %> </td>
+                </tr>
+                <% } %>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination buttons -->
+      <% if( !seeAll ) { %>
+
+        <div class="pagination-btn">
+          <% if( currentPage !== 1 ) { %> 
+          <a href="/admin/sales-report?page=1<% if ( sortData ) {%>&sortData=<%= sortData %><% } %><% if ( sortOrder ) {%>&sortOrder=<%= sortOrder %><% } %>"><button type="button" class="btn btn-outline-secondary 1">1</button></a>
+        <% } %>
+        <% if( currentPage > 2 ) { %>
+            <a href="/admin/sales-report?page=<%= prevPage %><% if ( sortData ) {%>&sortData=<%= sortData %><% } %><% if ( sortOrder ) {%>&sortOrder=<%= sortOrder %><% } %>"><button type="button" class="btn btn-outline-secondary 2"><%= prevPage %></button></a> 
+        <% } %>
+        <a href="/admin/sales-report?page=<%= currentPage %><% if ( sortData ) {%>&sortData=<%= sortData %><% } %><% if ( sortOrder ) {%>&sortOrder=<%= sortOrder %><% } %>"><button type="button" class="btn btn-outline-secondary 3 active"><%= currentPage %></button></a>
+        <% if( hasNextPage ) { %>
+            <a href="/admin/sales-report?page=<%= nextPage %><% if ( sortData ) {%>&sortData=<%= sortData %><% } %><% if ( sortOrder ) {%>&sortOrder=<%= sortOrder %><% } %>"><button type="button" class="btn btn-outline-secondary 4"><%= nextPage %></button></a> 
+        <% } %>    
+        <% if( nextPage !== lastPage && currentPage !== lastPage ) { %>
+            <a href="/admin/sales-report?page=<%= lastPage %><% if ( sortData ) {%>&sortData=<%= sortData %><% } %><% if ( sortOrder ) {%>&sortOrder=<%= sortOrder %><% } %>"><button type="button" class="btn btn-outline-secondary 5"><%= lastPage %></button></a>
+        <% } %>
+    </div>
+    <% } %>
+
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+</div>
+
+<!-- The popup message modal -->
+<div id="popupModal" class="modal fade" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content bg-light text-dark">
+      <div class="modal-body">
+      <h5 id="modalHead" class="modal-title"></h5><br>
+      <p id="modalContent"></p>
+      </div>
+  </div>
+  </div>
+</div>
+
+
+<script>
+
+
+  const dateForm = document.getElementById('sales-report-form')
+  
+  dateForm.addEventListener( 'submit' , function(event){
+    const now = new Date()
+    // const fromDate = document.getElementById( 'from' )
+    const from = document.getElementById( 'from' ).value
+    const to = document.getElementById( 'to' ).value
+    const fromDate = new Date( from )
+    const toDate = new Date( to )
+    if( fromDate > now ){
+      showModal('Warning', 'From date cannot be greater than Today')
+      event.preventDefault()
+    }
+    if( toDate > now) {
+      showModal('Warning', 'To date cannot be greater than Today')
+      event.preventDefault()
+    }
+    if( fromDate > toDate ) {
+      showModal('Warning', 'From date cannot be greater than To date')
+      event.preventDefault()
+    }
+  })
+  
+
+    function printDiv( divName ) {
+        const printContents = document.getElementById( divName ).innerHTML
+        const originalContents = document.body.innerHTML
+        document.body.innerHTML = printContents;
+        window.print()
+        document.body.innerHTML = originalContents
+
+    }
+
+    function showModal(title,message) {
+
+    const modalTitle = document.getElementById('modalHead')
+    const modalBody = document.getElementById('modalContent')
+
+    modalTitle.innerText = title;
+    modalBody.innerText = message;
+
+
+    // Show the popup message modal
+    $('#popupModal').modal('show');
+
+    // Hide the popup message modal when clicking outside of it
+    $(document).on('click', function(event) {
+    if (!$(event.target).closest('.modal-content').length) {
+      $('#popupModal').modal('hide');
+    }
+    });
+
+    }
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+
+<script>
+  function formatDateToString(date) {
+  // Ensure we have a valid date object
+  if (!(date instanceof Date) || isNaN(date)) {
+    return "Invalid Date";
+  }
+
+  // Get the day, month, and year components from the date
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = String(date.getFullYear());
+
+  // Concatenate the components with hyphens and return the formatted string
+  return `${day}-${month}-${year}`;
+}
+
+// Example usage:
+const date = new Date(); // Replace this with your date object
+const formattedDate = formatDateToString(date);
+
+
+
+
+  function excelDownload() {
+    // Get the table data
+    var table = document.getElementById("sales-table");
+    var wb = XLSX.utils.table_to_book(table, { sheet: "SheetJS" });
+
+    // Convert the workbook to an array buffer
+    var wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+
+    // Create a Blob object to store the workbook data
+    var blob = new Blob([wbout], { type: "application/octet-stream" });
+
+    // Generate a temporary anchor element and trigger the download
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    var url = window.URL.createObjectURL(blob);
+    var today = formatDateToString( new Date() )
+    a.href = url;
+    a.download = "MF-"+today+".xlsx";
+    a.click();
+
+    // Cleanup
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
+
+  $(document).ready(function() {
+    // Add an event listener to the button
+    $("#excel-export").on("click", function() {
+      excelDownload();
+    });
+  });
+</script>
+
+
+
+
+<%- include('../includes/admin/adminFooter.ejs') %>
+
+
+
+
+<!-- ================================================================================================ -->
+
+
+<%- include('../partials/adminPartials/header.ejs') -%>
+    
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Order List</h2>
+        </div>
+        <div>
+            <!-- <a href="#" class="btn btn-light rounded font-md">Excel</a> -->
+            <button href="#" class="btn btn-light rounded font-md" onclick="printDiv('Print')" >PDF Download</button>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <!-- Search Input -->
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <form action="/admin/orders" method="GET">
+                        <input type="text" name="search" placeholder="Search..." class="form-control" value="<%= search || '' %>">
+                        <button type="submit" class="btn btn-sm font-sm rounded btn-brand mt-3">Search</button>
+                    </form>
+                </div>
+                <!-- Status Filter -->
+                <div class="col-lg-2 col-md-3 col-6">
+                    <form action="/admin/orders" method="GET">
+                        <select class="form-select" name="status">
+                            <option>Choose</option>
+                            <option value="placed" <%= status === 'placed' ? 'selected' : '' %>>Placed</option>
+                            <option value="delivered" <%= status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                            <option value="cancelled" <%= status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                            <option value="">Show all</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm font-sm rounded btn-brand mt-3">Filter</button>
+                    </form>
+                </div>
+                <!-- Items Per Page -->
+                <div class="col-lg-2 col-md-3 col-6">
+                    <form action="/admin/orders" method="GET">
+                        <select class="form-select" name="itemsPerPage">
+                            <option value="10">Show 10</option>
+                            <option value="20">Show 20</option>
+                            <option value="30">Show 30</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm font-sm rounded btn-brand mt-3">Apply</button>
+                    </form>
+                </div>
+            </div>
+        </header>
+        <!-- card-header end// -->
+        <div class="card-body">
+            <div class="table-responsive" id="Print">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order #ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Payment</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Address</th>
+                            <th scope="col" class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (order && order.length > 0) { %>
+                            <% order.forEach(orderItem => { %>
+                                <tr>
+                                    <td><%= orderItem.order_Id %></td>
+                                    <td><b><%= orderItem.userName %></b></td>
+                                    <td><%= orderItem.paymentMethod %></td>
+                                    <td>₹<%= orderItem.totalAmount.toFixed(2) %></td>
+                                    <td>
+                                        <% if (orderItem.status === "placed") { %>
+                                            <span class="badge rounded-pill alert-warning">Placed</span>
+                                        <% } else if (orderItem.status === "delivered") { %>
+                                            <span class="badge rounded-pill alert-success">Delivered</span>
+                                        <% } else if (orderItem.status === "cancelled") { %>
+                                            <span class="badge rounded-pill alert-danger">Cancelled</span>
+                                        <% } else if (orderItem.status === "pending") { %>
+                                            <span class="badge rounded-pill alert-info">Pending</span>
+                                        <% } %>
+                                    </td>
+                                    <td><%= orderItem.date.toDateString() %></td>
+                                    <td><%= orderItem.userAddress%></td>
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm">
+                                                <i class="material-icons md-more_horiz"></i>
+                                            </a>
+                                            <% if (orderItem.status === "placed") { %>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="/admin/deliverd_orders?id=<%= orderItem._id%>">Delivered</a>
+                                                    <a class="dropdown-item" href="/admin/cancel_orders?id=<%= orderItem._id%>" onclick=" return confirm('Are you sure you want to Cancel this Order?');" >Cancel Order</a>
+                                                </div>                                              
+                                            <% } %>
+                                            <% if (orderItem.status === "pending") { %>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="/admin/placed_orders?id=<%= orderItem._id%>">Placed</a>
+                                                    <a class="dropdown-item" href="/admin/deliverd_orders?id=<%= orderItem._id%>">Delivered</a>
+                                                    <a class="dropdown-item" href="/admin/cancel_orders?id=<%= orderItem._id%>" onclick=" return confirm('Are you sure you want to Cancel this Order?');" >Cancel Order</a>
+                                                </div>
+                                            
+                                            <% } %>
+                                            <%  if (orderItem.status === "delivered") { %>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="#">Return</a>
+                                                    
+                                                </div>
+                                            <% } %>
+                                            <%  if (orderItem.status === "cancelled") { %>
+                                            <% } %>
+                                        </div>
+                                        <!-- dropdown //end -->
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td class="text-danger" colspan="7">No orders found.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>                                  
+                </table>
+            </div>
+            <!-- table-responsive //end -->
+        </div>
+        <!-- card-body end// -->
+    </div>
+
+    <!-- Pagination area -->
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <% if (i === currentPage) { %>
+                        <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
+                    <% } else { %>
+                        <li class="page-item"><a class="page-link" href="/admin/orders?page=<%= i %>&search=<%= search || '' %>&status=<%= status || '' %>&itemsPerPage=<%= ITEMS_PER_PAGE %>"><%= i %></a></li>
+                    <% } %>
+                <% } %>
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/orders?page=<%= currentPage + 1 %>&search=<%= search || '' %>&status=<%= status || '' %>&itemsPerPage=<%= ITEMS_PER_PAGE %>">
+                            <i class="material-icons md-chevron_right"></i>
+                        </a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+</section>
+
+<script>
+    function printDiv( divName ) {
+        const printContents = document.getElementById( divName ).innerHTML
+        const originalContents = document.body.innerHTML
+        document.body.innerHTML = printContents;
+        window.print()
+        document.body.innerHTML = originalContents
+    }
+</script>
+
+
+<%- include('../partials/adminPartials/footer.ejs') -%>

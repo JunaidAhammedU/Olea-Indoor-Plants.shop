@@ -1,0 +1,82 @@
+<%- include('../partials/adminPartials/header.ejs') -%>
+            
+            <section class="content-main">
+                <form action="/admin/coupon" method="post">
+                    <div class="row">
+                        <div class="col-9">
+                            <div class="content-header">
+                                <h2 class="content-title">Add New Coupon</h2>
+                                <div>
+                                    <button class="btn btn-md rounded font-sm hover-up" type="submit">Publich</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <label for="product_title" class="form-label">Coupon Code</label>
+                                        <input type="text" name="code" placeholder="Type here" class="form-control" id="product_title" />
+                                    </div>
+                                    <div class="row gx-3">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="product_sku" class="form-label">Start Date</label>
+                                            <input type="date" name="startDate" placeholder="Type here" class="form-control" id="product_sku" />
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="product_color" class="form-label">Expiry Date</label>
+                                            <input type="date" name="expiryDate" placeholder="Type here" class="form-control" id="product_color" />
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="product_color" class="form-label">Coupon Count</label>
+                                            <input type="text" name="maxUsers" placeholder="Type here" class="form-control" id="product_color" />
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Discount Type</label>
+                                        <select class="form-select" name="discountType">
+                                            <option>Percentage Type</option>
+                                            <option>Fixed Amount</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- card end// -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div>
+                                        <label class="form-label">Description</label>
+                                        <textarea placeholder="Type here" name="" class="form-control" rows="4"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- card end// -->
+                        </div>
+
+                        <div class="col-lg-3">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <label class="form-label">Discount Amount</label>
+                                        <input type="text" placeholder="Type here" name="discountAmount" class="form-control" />
+                                    </div>
+                                    <!--  -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Maximum Cart Amount</label>
+                                        <input type="text" placeholder="Type here" name="maxCartAmount" class="form-control" />
+                                    </div>
+                                    <!--  -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Maximum Discount Amount</label>
+                                        <input type="text" placeholder="Type here" name="maxDiscountAmount" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- card end// -->
+                        </div>
+                    </div>
+                </form>
+            </section>
+    
+    <%- include('../partials/adminPartials/footer.ejs') -%>
+

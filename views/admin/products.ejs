@@ -1,5 +1,4 @@
-
- <%- include('../partials/adminPartials/header.ejs') -%>
+<%- include('../partials/adminPartials/header.ejs') -%>
 
 <section class="content-main">
     <div class="content-header">
@@ -12,19 +11,41 @@
     </div>
     <div class="card mb-4">
         <header class="card-header">
-            <div class="row align-items-center">
-                <div class="col-md-2 col-6">
-                    <select class="form-select">
-                        <option selected>Status</option>
-                        <option>Active</option>
-                        <option>Disabled</option>
-                        <option>Show all</option>
-                    </select>
+            <div class="row gx-3">
+                <!-- Search Input -->
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <form action="/admin/products" method="GET">
+                        <input type="text" name="search" placeholder="Search..." class="form-control" value="<%= search || '' %>">
+                        <button type="submit" class="btn btn-sm font-sm rounded btn-brand mt-3">Search</button>
+                    </form>
+                </div>
+                <!-- Status Filter -->
+                <div class="col-lg-2 col-md-3 col-6">
+                    <form action="/admin/products" method="GET">
+                        <select class="form-select" name="status">
+                            <option>Choose</option>
+                            <option value="active" <%= status === 'active' ? 'selected' : '' %>>Active</option>
+                            <option value="deleted" <%= status === 'deleted' ? 'selected' : '' %>>Deleted</option>
+                            <option value="">Show all</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm font-sm rounded btn-brand mt-3">Filter</button>
+                    </form>
+                </div>
+                <!-- Items Per Page -->
+                <div class="col-lg-2 col-md-3 col-6">
+                    <form action="/admin/products" method="GET">
+                        <select class="form-select" name="itemsPerPage">
+                            <option value="10">Show 10</option>
+                            <option value="20">Show 20</option>
+                            <option value="30">Show 30</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm font-sm rounded btn-brand mt-3">Apply</button>
+                    </form>
                 </div>
             </div>
         </header>
         <div class="card-body">
-            <table class="table">
+            <table class="table" id="myTable">
                 <thead>
                     <tr>
                         <th scope="col">Image</th>
@@ -45,26 +66,26 @@
                                     <img src="/assets/products/<%= product.images[0] %>" class="img-sm img-thumbnail" alt="Item" />
                                 </td>
                                 <td><%= product.name %></td>
-                                <td>$<%= product.price %></td>
-                                <td><%= product.category%></td>
-                                <td><%= product.productQuantity%></td>
-                                <td><%= product.createdAt.toLocaleDateString()%></td>
+                                <td>₹.<%= product.price %></td>
+                                <td><%= product.category %></td>
+                                <td><%= product.productQuantity %></td>
+                                <td><%= product.createdAt.toLocaleDateString() %></td>
 
                                 <% if (product.status === true) { %>
                                     <td>
-                                        <span class="badge rounded-pill alert-success"> Active</span>
+                                        <span class="badge rounded-pill alert-success">Active</span>
                                     </td>
                                     <td>
                                         <a href="/admin/editProduct/<%= product.id %>" class="btn btn-sm font-sm rounded btn-brand"><i class="material-icons md-edit"></i> Edit</a>
                                         <a href="/admin/unlistProduct/<%= product.id %>" onclick="return confirm('Are you sure you want to Unlist this item?');" class="btn btn-sm font-sm rounded  btn-danger" ><i class="material-icons md-delete_forever"></i> Unlist</a>
                                     </td>
-                                <% } else{%>
+                                <% } else { %>
                                     <td>
-                                        <span class="badge rounded-pill alert-danger"> Deleted </span>
-                                        <td>
-                                            <a href="/admin/editProduct/<%= product.id %>" class="btn btn-sm font-sm rounded btn-brand"><i class="material-icons md-edit"></i> Edit</a>
-                                            <a href="/admin/listProduct/<%= product.id %>" onclick="return confirm('Are you sure you want to List this item?');" class="btn btn-sm font-sm btn-light rounded" ><i class="material-icons md-delete_forever"></i>list</a>
-                                        </td>
+                                        <span class="badge rounded-pill alert-danger">Unlisted</span>
+                                    </td>
+                                    <td>
+                                        <a href="/admin/editProduct/<%= product.id %>" class="btn btn-sm font-sm rounded btn-brand"><i class="material-icons md-edit"></i> Edit</a>
+                                        <a href="/admin/listProduct/<%= product.id %>" onclick="return confirm('Are you sure you want to List this item?');" class="btn btn-sm font-sm btn-light rounded" ><i class="material-icons md-delete_forever"></i>List</a>
                                     </td>
                                 <% } %>
                             </tr>
@@ -78,7 +99,26 @@
             </table>
         </div>
     </div>
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <% if (i === currentPage) { %>
+                        <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
+                    <% } else { %>
+                        <li class="page-item"><a class="page-link" href="/admin/products?page=<%= i %>&search=<%= search || '' %>&status=<%= status || '' %>&sortBy=<%= sortBy || '' %>&itemsPerPage=<%= ITEMS_PER_PAGE %>"><%= i %></a></li>
+                    <% } %>
+                <% } %>
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/products?page=<%= currentPage + 1 %>&search=<%= search || '' %>&status=<%= status || '' %>&sortBy=<%= sortBy || '' %>&itemsPerPage=<%= ITEMS_PER_PAGE %>">
+                            <i class="material-icons md-chevron_right"></i>
+                        </a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
 </section>
 
 <%- include('../partials/adminPartials/footer.ejs') -%>
-

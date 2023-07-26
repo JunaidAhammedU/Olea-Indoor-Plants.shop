@@ -1,0 +1,125 @@
+<%- include('../partials/adminPartials/header.ejs') -%>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Available Coupon's</h2>
+        </div>
+        <div>
+            <a href="/admin/coupon" class="btn btn-primary btn-sm rounded"> Add Coupon </a>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <form action="/admin/viewCouponList" method="GET">
+                        <input type="text" name="search" placeholder="Search..." class="form-control" value="<%= search || '' %>">
+                        <button type="submit" class="btn btn-sm font-sm rounded btn-brand mt-3">Search</button>
+                    </form>
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <form action="/admin/viewCouponList" method="GET">
+                        <select class="form-select" name="status">
+                            <option>Status</option>
+                            <option value="active" <%= status === 'active' ? 'selected' : '' %>>Active</option>
+                            <option value="disabled" <%= status === 'disabled' ? 'selected' : '' %>>Disabled</option>
+                            <option value="">Show all</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm font-sm rounded btn-brand mt-3">Filter</button>
+                    </form>
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <form action="/admin/viewCouponList" method="GET">
+                        <select class="form-select" name="itemsPerPage">
+                            <option value="10">Show 10</option>
+                            <option value="20">Show 20</option>
+                            <option value="30">Show 30</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm font-sm rounded btn-brand mt-3">Apply</button>
+                    </form>
+                </div>
+            </div>
+        </header>
+        <!-- card-header end// -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Discount Type</th>
+                            <th>Discount Amount</th>
+                            <th>Max Cart Amount</th>
+                            <th>Quantity</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>Expiry Date</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (coupon && coupon.length > 0) { %>
+                            <% coupon.forEach(couponItem => { %> 
+                                <tr>
+                                    
+                                    <td> <p><%= couponItem.code %> </p> </td>
+                                    <td> <p><%= couponItem.discountType %> </p> </td>
+                                    <td><p>₹.<%= couponItem.discountAmount %> </p> </td>
+                                    <td><p>₹.<%= couponItem.maxCartAmount %> </p> </td>
+                                    <td> <p><%= couponItem.maxUsers %> </p> </td>
+                                    <td> <p><%= couponItem.status%> </p> </td>
+                                    <td> <p><%= couponItem.startDate.toLocaleDateString()%> </p> </td>
+                                    <td> <p><%= couponItem.expiryDate.toLocaleDateString()%> </p> </td>
+                                    <td class="text-end">
+                                        <!-- Coupon action buttons -->
+                                        <div class="dropdown">
+                                            <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="/admin/editCoupon/<%= couponItem._id %>">Edit info</a>
+                                                <a class="dropdown-item text-danger" href="/admin/deleteCoupon/<%= couponItem._id %>">Delete</a>
+                                            </div>
+                                        </div>
+                                        <!-- dropdown //end -->
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td class="text-danger" colspan="7">No coupons found.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+            <!-- table-responsive//end -->
+        </div>
+        <!-- card-body end// -->
+    </div>
+    <div class="pagination-area mt-30 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <% if (i === currentPage) { %>
+                        <li class="page-item active"><a class="page-link" href="#"><%= i %></a></li>
+                    <% } else { %>
+                        <li class="page-item"><a class="page-link" href="/admin/viewCouponList?page=<%= i %>&search=<%= search || '' %>&status=<%= status || '' %>&itemsPerPage=<%= ITEMS_PER_PAGE %>"><%= i %></a></li>
+                    <% } %>
+                <% } %>
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/admin/viewCouponList?page=<%= currentPage + 1 %>&search=<%= search || '' %>&status=<%= status || '' %>&itemsPerPage=<%= ITEMS_PER_PAGE %>">
+                            <i class="material-icons md-chevron_right"></i>
+                        </a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+</section>
+
+<script>
+
+</script>
+
+<%- include('../partials/adminPartials/footer.ejs') -%>

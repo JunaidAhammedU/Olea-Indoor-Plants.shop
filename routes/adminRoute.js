@@ -3,12 +3,14 @@ const adminRouter = express();
 const adminController = require('../controller/adminController');
 const productsController = require('../controller/productsController');
 const catagorieController = require('../controller/catagorieController');
+const couponController = require('../controller/couponController');
 const orderController = require('../controller/orderController');
+const offerController = require('../controller/offerController');
 const adminAuth = require('../middleware/adminAuth');
 const sessionSecret = require('../config/session');
 const session = require('express-session');
 const upload = require('../config/multer').upload;
-//--------------------------------------------------------------
+//-------------------------------------------------------------------------
 
 
 
@@ -39,13 +41,28 @@ adminRouter.get('/orders',adminAuth.isLogin,adminController.loadOrders);
 adminRouter.get('/placed_orders',adminAuth.isLogin,orderController.placedOrder);
 adminRouter.get('/deliverd_orders',adminAuth.isLogin,orderController.orderDeliverd);
 adminRouter.get('/cancel_orders',adminAuth.isLogin,adminController.cancelOrders);
+adminRouter.get('/coupon',adminAuth.isLogin,couponController.addCoupon);
+adminRouter.get('/viewCouponList',adminAuth.isLogin,couponController.viewCouponList);
+adminRouter.get('/editCoupon/:couponId',adminAuth.isLogin,couponController.loadEditCoupon);
+adminRouter.get('/deleteCoupon/:couponId',adminAuth.isLogin,couponController.deleteCoupon);
 
+// adminRouter.get('/loadProductOfferList',adminAuth.isLogin,offerController.loadProductOfferList);
+// adminRouter.get('/loadCategoryOfferList',adminAuth.isLogin,offerController.loadCategoryOfferList);
+
+adminRouter.get('/addProductOffer',adminAuth.isLogin,offerController.addProductOffer);
+adminRouter.get('/addCategoryOffer',adminAuth.isLogin,offerController.addCategoryOffer);
+
+ 
 //POST method
 adminRouter.post('/categories',catagorieController.addCategorie);
 adminRouter.post('/',adminController.dologinAdmin);
 adminRouter.post('/addProducts',upload.array('images',10),productsController.AddProducts);
 adminRouter.post('/editProduct/:productId',productsController.updateProducts)
-    
+adminRouter.post('/coupon',couponController.postAddCoupon);
+adminRouter.post('/editCoupon/:couponId',couponController.editCoupon);
+adminRouter.post('/addCategoryOffer',offerController.getCategoryOffer);
+adminRouter.post('/addProductOffer',offerController.getProductOffer);
+
 
 
 module.exports = adminRouter;
