@@ -2,6 +2,9 @@ const Cart = require('../models/cartModel');
 const User = require('../models/userModel');
 const Product = require('../models/productsModel');
 const Address = require('..//models/addressModel');
+
+const ProductOffer = require("../models/productOfferModel")
+const Offer = require("../models/categorieOfferModel")
 //-----------------------------------------------------
 
 
@@ -18,6 +21,30 @@ const loadCartPage = async (req, res) => {
       })
       .exec();
 
+      //=====
+      const currentDate = new Date();
+      const categoryOfferCheck = await Offer.find();
+      for (const offer of categoryOfferCheck) {
+        if (offer.endDate <= currentDate) {
+          await Offer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+        } else {
+          await Offer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+        }
+      }
+
+      const productOfferCheck = await ProductOffer.find();
+      for (const offer of productOfferCheck) {
+        if (offer.endDate <= currentDate) {
+          await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+        } else {
+          await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+        }
+      }
+
+      const categoryOffer = await Offer.find({ status: "Active" });
+      const productOffer = await ProductOffer.find({ status: "Active" });
+    //====
+
     if (userId && cartData && cartData.products.length > 0) {
       const products = cartData.products;
       let Total = 0;
@@ -33,7 +60,9 @@ const loadCartPage = async (req, res) => {
         products,
         cartData,
         Total,
-        userId
+        userId,
+        categoryOffer,
+        productOffer
       });
     } else {
       res.render('./user/cartEmpty', {
@@ -47,32 +76,25 @@ const loadCartPage = async (req, res) => {
   }
 };
 
+
 // add to cart
 const addToCart = async (req, res) => {
   try {
-    const productId = req.params.productId;
+    const productId =  req.body.query;
     const userData = await User.findOne({ _id: req.session.user_id});
     const productData = await Product.findOne({ _id: productId });
-
-    if (req.session.user_id) {
+    const user = req.session.user_id
+    if (user) {
       const userId = req.session.user_id;
       const cartData = await Cart.findOne({ userName: userId });
-      // 
 
-      const exist = cartData.products.filter((value) => value.productId.toString() == productId)
-      if (exist.length !== 0) {
-          if (exist[0].quantity < productData.productQuantity) {
-             
-          } else {
-              res.status(200).json({ success: false, message: 'Reached the limit' });
-          }
-      }
-      // 
+    if(productData.productQuantity > 0){
       if (cartData) {
         const productExist = cartData.products.findIndex(
-          (product) => product.productId.toString() === productId );
+          (product) => product.productId.toString() === productId
+        );
         
-        if (productExist !== -1) {
+        if (productExist !== -1) { 
           await Cart.updateOne(
             { userName: userId, 'products.productId': productId },
             { $inc: { 'products.$.count': 1 } }
@@ -106,7 +128,10 @@ const addToCart = async (req, res) => {
         await cart.save(); 
       }
 
-      res.redirect('/cart');
+      res.json({success:true})
+    }else {
+      res.json({stockOut: true});
+    }
     } else {
       res.redirect('/login');
     }
@@ -153,7 +178,6 @@ const removeProduct = async (req, res) => {
 //   }
 // };
 //===================================================================================
-
 // change product quantity
 const changeProductQuantity = async (req, res) => {
   try {
@@ -163,7 +187,8 @@ const changeProductQuantity = async (req, res) => {
     let quantity = req.body.quantity;
     count = parseInt(count);
     quantity = parseInt(quantity);
-
+    const productData = await Product.findById({_id:proId})
+      
     if (count == -1 && quantity == 1) {
       await Cart.
       updateOne({ _id: cartId },
@@ -174,14 +199,12 @@ const changeProductQuantity = async (req, res) => {
       res.json({removeProduct:true})
 
     } else {
-
-      await Cart.updateOne(
-        { _id: cartId, 'products.productId': proId },
-        { $inc: { 'products.$.count': count } }
-      );
-      res.json(true)
+        await Cart.updateOne(
+          { _id: cartId, 'products.productId': proId },
+          { $inc: { 'products.$.count': count } }
+        );
+        res.json(true);
     }
-
   } catch (error) {
     console.log(error.message);
   }

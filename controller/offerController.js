@@ -5,18 +5,15 @@ const Product = require('../models/productsModel');
 //------------------------------------------------------------
 
 //? category offer
-
-// const loadProductOfferPage = async(req,res)=>{
-//   try {
-//     const url = req.url;
-//     const offers = await ProductOffer.find().populate('category');
-//     console.log(offers);
-//     res.render('categoryOfferList',{offers,url});
-
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// }
+const loadCategoryOfferList = async(req,res)=>{
+  try {
+    const admin = req.session.admin_id; 
+    const cateOffers = await categoryOffer.find().populate('category');
+     res.render('./admin/listCategoryOffer',{admin:admin, cateOffers});
+  } catch (error) {
+    console.log(error.message);
+  }
+}
 
 // load product offer
 const addCategoryOffer = async (req,res)=>{
@@ -33,8 +30,6 @@ const addCategoryOffer = async (req,res)=>{
 // add offer category
 const getCategoryOffer = async(req,res)=>{
   try {
-
-    console.log(req.body)
     const data = new categoryOffer ({
       category:req.body.category,
       description:req.body.description,
@@ -55,9 +50,11 @@ const getCategoryOffer = async(req,res)=>{
   }   
 }
 
+// edit category offer
 // const editCategoryOffer = async(req,res)=>{
 //   try {
-//     const offerId = req.query.id;
+//     const offerId = req.params.offerId;
+
 //     const data = await ProductOffer.findOne({_id:offerId}).populate('category');
 //     console.log(data);
 //     const categories = await Category.find({status:true});
@@ -102,19 +99,18 @@ const getCategoryOffer = async(req,res)=>{
 //   }
 // }
 
-/////////////////////////////////////////////////
+//================================================================================================//
 
 //? product offer
-// const productOfferList = async(req,res)=>{
-//   try {
-//     const url = req.url;
-//     const productOffers = await ProductOffer.find().populate('productName');
-//     res.render('productOfferList',{productOffers,url});
-
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// }
+const loadProductOfferList = async(req,res)=>{
+  try {
+    const admin = req.session.admin_id; 
+    const productOffers = await ProductOffer.find().populate('productName');
+     res.render('./admin/listProductOffer',{admin:admin, productOffers});
+  } catch (error) {
+    console.log(error.message);
+  }
+}
 
 // load product offer
 const addProductOffer = async (req, res) => {
@@ -151,62 +147,61 @@ const getProductOffer = async(req,res)=>{
 }
 
 //edit Product Offer
-// const editProductOffer = async(req,res)=>{
-//   try {
-//     const offerId = req.query.id;
-//     const data = await ProductOffer.findOne({_id:offerId}).populate('productName');
-//     const products = await Product.find({list:true});
+const editProductOffer = async(req,res)=>{
+  try {
+    const admin = req.session.admin_id;
+    const offerId = req.params.offerId;
+    const data = await ProductOffer.findOne({_id:offerId}).populate('productName');
+    const productData = await Product.find({status:true});
+    res.render('./admin/editProductOffer',{admin:admin, data, productData:productData});
+  } catch (error) {
+    console.log(error.message);
+  }
+}
 
-//     res.render('editProductOffer',{data,products});
+// updating product offer
+const updateProductOffer = async(req,res)=>{
+  try {
+    const offerId = req.body.id
+    const data = {
+      productName:req.body.productName,
+      description:req.body.description,
+      discountPercentage:req.body.discountPercentage,
+      startDate:req.body.startDate,
+      endDate:req.body.endDate,
+    }
+    if(!data.productName || !data.description || !data.discountPercentage || !data.startDate || !data.endDate){
+      return res.json({noValidation: true });
+    }
 
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// }
+    const currentDate = new Date();
+    const startDate = new Date(data.startDate);
+    const endDate = new Date(data.endDate);
 
-// const updateProductOffer = async(req,res)=>{
-//   try {
-//     const offerId = req.body.id;
-//     const data = {
-//       productName:req.body.productName,
-//       description:req.body.description,
-//       discountPercentage:req.body.discountPercentage,
-//       startDate:req.body.startDate,
-//       endDate:req.body.endDate,
-//     }
-//     if(!data.productName || !data.description || !data.discountPercentage || !data.startDate || !data.endDate){
-//       return res.json({error: 'Fill in all fields!'});
-//     }
-
-//     const currentDate = new Date();
-//     const startDate = new Date(data.startDate);
-//     const endDate = new Date(data.endDate);
-//     if(startDate<endDate && endDate >= currentDate ){
-//       data.status = "Active";
-//     } else if (endDate <= currentDate){
-//       data.status = "Expired";
-//     } else if (startDate > endDate) {
-//       return res.json({error: 'Starting date is wrong!'});
-//     }
-
-//     await ProductOffer.updateOne({_id:offerId},data);
-//     return res.json({success:'success'});
-
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// }
+    if(startDate<endDate && endDate >= currentDate ){
+      data.status = "Active";
+    } else if (endDate <= currentDate){
+      data.status = "Expired";
+    } else if (startDate > endDate) {
+      return res.json({dateWrong: true});
+    }
+    await ProductOffer.updateOne({_id:offerId},data);
+    return res.json({success:true});
+  } catch (error) {
+    console.log(error.message);
+  }
+}
 
 
 module.exports = {
-  // loadProductOfferPage,
+  loadProductOfferList,
   addProductOffer,
-//   categoryOfferList,
+  loadCategoryOfferList,
   getProductOffer,
-//   editProductOffer,
-//   updateProductOffer,
+  editProductOffer,
+  updateProductOffer,
   addCategoryOffer,
-   getCategoryOffer,
+  getCategoryOffer,
 //   editCategoryOffer,
 //   updateCategoryOffer,
 }

@@ -11,6 +11,7 @@
                         <div class="ltn__shop-details-inner mb-60">
                             <div class="row">
                                 <div class="col-md-6">
+
                                     <div class="ltn__shop-details-img-gallery">
                                         <div class="ltn__shop-details-large-img">
                                             <% for( let i = 0; i < product.images.length; i++ ) { %>
@@ -21,18 +22,14 @@
                                         </div>
 
                                         <div class="ltn__shop-details-small-img slick-arrow-2">
-
                                             <% for( let i = 0; i < product.images.length; i++ ) { %>
                                             <div class="single-small-img">
                                                 <img src="/assets/products/<%= product.images[i] %>" alt="Image">
                                             </div>
                                             <% } %>
-
                                         </div>
-
                                     </div>
                                 </div>
-
 
                                 <div class="col-md-6">
                                     <div class="modal-product-info shop-details-info pl-0">
@@ -47,10 +44,37 @@
                                             </ul>
                                         </div>
                                         <h3><%= product.name %></h3>
-                                        <div class="product-price">
+                                        <!-- <div class="product-price">
                                             <span>₹<%= product.price %></span>
                                             <del>₹999.00</del>
+                                        </div> -->
+
+                                        <!-- ===========OFFER PRICE MODULE=================== -->
+                                        <div>
+                                            <% const proOfferMatch = productOffer.find((x) => x.productName.equals(product._id)); %>
+                                            <% const offerMatch = categoryOffer.find((x) => x.category.equals(product.category)); %>
+                                            
+                                            <% if(proOfferMatch && offerMatch){ %>
+                                                <span class="stext-105 cl3">₹ <strong><%= (product.price - ((product.price * (offerMatch.discountPercentage + proOfferMatch.discountPercentage))/100)).toFixed(2) %></strong></span>
+                                                <span class="text-secondary stext-105 cl3"><strong><s>₹<%= product.price %></s></strong></span>
+                                                <span class="text-success stext-105 cl3"><strong><%= offerMatch.discountPercentage + proOfferMatch.discountPercentage %>% off</strong></span>
+
+                                            <% } else if(proOfferMatch && !offerMatch){ %>
+                                                <span class="stext-105 cl3"><strong>₹<%= (product.price - ((product.price * proOfferMatch.discountPercentage)/100)).toFixed(2) %></strong></span>
+                                                <span class="text-secondary stext-105 cl3"><strong><s>₹<%= product.price %></s></strong></span>
+                                                <span class="text-success stext-105 cl3"><strong><%= proOfferMatch.discountPercentage %>% off</strong></span>
+
+                                            <% } else if(offerMatch && !proOfferMatch){ %>
+                                                <span class="stext-105 cl3"><strong>₹<%= (product.price - ((product.price * offerMatch.discountPercentage)/100)).toFixed(2) %></strong></span>
+                                                <span class="text-secondary stext-105 cl3"><strong><s>₹<%= product.price %></s></strong></span>
+                                                <span class="text-success stext-105 cl3"><strong><%= offerMatch.discountPercentage %>% off</strong></span>
+
+                                            <% } else { %>
+                                                <span class="stext-105 cl3">₹ <strong><%= product.price %></strong></span>
+                                            <% } %>
                                         </div>
+                                        <!-- ============================== -->
+
                                         <div class="modal-product-meta ltn__product-details-menu-1">
                                             <ul>
                                                 <li>
@@ -69,11 +93,12 @@
                                                     </div>
                                                 </li> -->
                                                 <li>
+                                                    
                                                     <!-- class="theme-btn-1 btn btn-effect-1" title="Add to Cart" data-bs-toggle="modal" data-bs-target="#add_to_cart_modal" -->
-                                                    <a href="/add-to-cart/<%= product._id %>" class="btn btn-success">
+                                                    <button class="btn btn-success" onclick="addToCart('<%= product._id %>')"> 
                                                         <i class="fas fa-shopping-cart"></i>
                                                         <span>ADD TO CART</span>
-                                                    </a>
+                                                    </button>
                                                 </li>
                                             </ul>
                                         </div>
@@ -124,7 +149,7 @@
                             <div class="tab-content">
                                 <div class="tab-pane fade active show" id="liton_tab_details_1_1">
                                     <div class="ltn__shop-details-tab-content-inner">
-                                        <h4 class="title-2"><%= product.name %> - <%= product.category %></h4>
+                                        <h4 class="title-2"><%= product.name %> - <%= catName %></h4>
                                         <p><%= product.description%></p> 
                                     </div>
                                 </div>  
@@ -615,11 +640,32 @@
                     } else if (response.check) {
                         toastr.warning("Already added to Wishlist!!");
                     }else{
-
+                        
                     }
                 }
             });
         }
+
+        // ====== //
+
+        function addToCart(id) {
+            $.ajax({
+                url: "/add-to-cart",
+                method: 'post',
+                data: {
+                    query: id
+                },
+                success: (response) => {
+                    if (response.success === true) {
+                        toastr.success("Added To Cart");
+                    } else if (response.stockOut === true) {
+                        toastr.warning("Stock Out!");
+                    }else{
+                        window.location.href = '/login';
+                    }
+                }
+            });
+        }        
     </script>
     
 

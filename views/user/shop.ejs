@@ -108,6 +108,7 @@
                                                         <div>
                                                             <% const proOfferMatch = productOffer.find((x) => x.productName.equals(product._id)); %>
                                                             <% const offerMatch = categoryOffer.find((x) => x.category.equals(product.category)); %>
+                                                            
                                                             <% if(proOfferMatch && offerMatch){ %>
                                                                 <span class="stext-105 cl3">₹<%= (product.price - ((product.price * (offerMatch.discountPercentage + proOfferMatch.discountPercentage))/100)).toFixed(2) %></span>
                                                                 <span class="text-secondary stext-105 cl3"><s>₹<%= product.price %></s></span>

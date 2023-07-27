@@ -141,6 +141,8 @@
               if (response.removeProduct){
                 alert('product removed from cart');
                 location.reload();
+              } else if (stockOut === true){
+                alert("Out of Stock");
               } else {
                 document.getElementById(proId).innerHTML = quantity + count;
               }           

@@ -45,23 +45,31 @@ adminRouter.get('/coupon',adminAuth.isLogin,couponController.addCoupon);
 adminRouter.get('/viewCouponList',adminAuth.isLogin,couponController.viewCouponList);
 adminRouter.get('/editCoupon/:couponId',adminAuth.isLogin,couponController.loadEditCoupon);
 adminRouter.get('/deleteCoupon/:couponId',adminAuth.isLogin,couponController.deleteCoupon);
-
-// adminRouter.get('/loadProductOfferList',adminAuth.isLogin,offerController.loadProductOfferList);
-// adminRouter.get('/loadCategoryOfferList',adminAuth.isLogin,offerController.loadCategoryOfferList);
-
+adminRouter.get('/loadProductOfferList',adminAuth.isLogin,offerController.loadProductOfferList);
+adminRouter.get('/editProductOffer/:offerId',adminAuth.isLogin,offerController.editProductOffer);
+//adminRouter.get('/editCategoryOffer/:offerId',adminAuth.isLogin,offerController.editCategoryOffer);
+adminRouter.get('/loadCategoryOfferList',adminAuth.isLogin,offerController.loadCategoryOfferList);
 adminRouter.get('/addProductOffer',adminAuth.isLogin,offerController.addProductOffer);
 adminRouter.get('/addCategoryOffer',adminAuth.isLogin,offerController.addCategoryOffer);
+adminRouter.get('/viewBannerList',adminAuth.isLogin,adminController.listBanner);
+adminRouter.get('/addBanner',adminAuth.isLogin,adminController.addBannerPage);
+// adminRouter.get('/editBanner/:bannerID',adminAuth.isLogin,adminController.editBannerPage); 
+adminRouter.get('/deleteBanner/:bannerID',adminAuth.isLogin,adminController.deleteBanner); 
 
  
 //POST method
 adminRouter.post('/categories',catagorieController.addCategorie);
 adminRouter.post('/',adminController.dologinAdmin);
 adminRouter.post('/addProducts',upload.array('images',10),productsController.AddProducts);
-adminRouter.post('/editProduct/:productId',productsController.updateProducts)
+adminRouter.post('/editProduct/:productId',upload.array('images',10),productsController.updateProducts)
 adminRouter.post('/coupon',couponController.postAddCoupon);
 adminRouter.post('/editCoupon/:couponId',couponController.editCoupon);
 adminRouter.post('/addCategoryOffer',offerController.getCategoryOffer);
 adminRouter.post('/addProductOffer',offerController.getProductOffer);
+adminRouter.post('/addBanner',upload.single('images'),adminController.addBanner);
+// adminRouter.post('/editBanner',adminController.editBanner);
+adminRouter.post('/editProductOffer',adminAuth.isLogin,offerController.updateProductOffer);
+
 
 
 

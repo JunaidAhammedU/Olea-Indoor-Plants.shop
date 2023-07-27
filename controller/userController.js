@@ -7,6 +7,7 @@ const Product = require("../models/productsModel");
 const Categories = require("../models/categoriesModel");
 const ProductOffer = require("../models/productOfferModel")
 const Offer = require("../models/categorieOfferModel")
+const Banner = require("../models/bannerModel")
 const Order = require("../models/orderModel");
 const Cart = require('../models/cartModel');
 const Address = require('../models/addressModel');
@@ -43,7 +44,31 @@ const loadHome = async (req, res) => {
   try {
     let userId = req.session.user_id;
     const productData = await Product.find();
-    res.render("./user/index", { userId, products: productData});
+    const bannerData = await Banner.find();
+
+    const currentDate = new Date();
+    const categoryOfferCheck = await Offer.find();
+    for (const offer of categoryOfferCheck) {
+      if (offer.endDate <= currentDate) {
+        await Offer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+      } else {
+        await Offer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+      }
+    }
+
+    const productOfferCheck = await ProductOffer.find();
+    for (const offer of productOfferCheck) {
+      if (offer.endDate <= currentDate) {
+        await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+      } else {
+        await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+      }
+    }
+
+    const categoryOffer = await Offer.find({ status: "Active" });
+    const productOffer = await ProductOffer.find({ status: "Active" });
+
+    res.render("./user/index", { userId, products: productData, bannerData:bannerData,categoryOffer,productOffer});
   } catch (error) {
     console.log("Error loading Home page:", error);
   }
@@ -227,7 +252,30 @@ const loadProductDetailsPage = async (req, res) => {
     const productData = await Product.findOne({ _id: productId });
     const catData = await Categories.findById({_id:productData.category})
     const catName = catData.categorieName;
-    res.render("./user/product-details", { userId, product: productData,catName });
+
+    const currentDate = new Date();
+    const categoryOfferCheck = await Offer.find();
+    for (const offer of categoryOfferCheck) {
+      if (offer.endDate <= currentDate) {
+        await Offer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+      } else {
+        await Offer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+      }
+    }
+
+    const productOfferCheck = await ProductOffer.find();
+    for (const offer of productOfferCheck) {
+      if (offer.endDate <= currentDate) {
+        await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+      } else {
+        await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+      }
+    }
+
+    const categoryOffer = await Offer.find({ status: "Active" });
+    const productOffer = await ProductOffer.find({ status: "Active" });
+
+    res.render("./user/product-details", { userId, product: productData,catName,categoryOffer,productOffer });
   } catch (error) {
     console.error("Error occurred while loading product details page ", error);
     res.status(500).send("Error occurred while loading product details page.");
@@ -279,8 +327,9 @@ const loadShopPage = async (req, res) => {
       category: { $in: catId },
     });
     const totalPage = Math.ceil(productCount / limit);
-    const currentDate = new Date();
 
+
+    const currentDate = new Date();
     const categoryOfferCheck = await Offer.find();
     for (const offer of categoryOfferCheck) {
       if (offer.endDate <= currentDate) {
@@ -339,115 +388,6 @@ const loadShopPage = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-
-/* Rest of the code remains unchanged */
-
-
-
-
-// const loadShopPage = async(req,res)=>{
-//   try {
-//     const page = Number(req.query.page) || 1;
-//     const limit = 8;
-//     const skip = (page - 1) * limit;
-
-//     const price = req.query.value;
-//     let category = req.query.category || "All";
-//     let Search = req.query.Search || ""
-//     Search = Search.trim();
-
-//     const categoryData = await Categories.find({ status: true });
-//     let cat = [];
-//     for(let i=0;i<categoryData.length;i++){
-//       cat[i] = categoryData[i].categorieName;
-//     }
-//     // const sample = "Hello,Hi,Tta";
-//     // const s1 = sample.split('');
-//     // console.log(s1);
-//     let sort;
-//     category === "All"? category = [...cat] : category = req.query.category.split(',');
-//     req.query.value === "High" ? (sort = -1) : (sort = 1);
-//     let catId = [];
-
-//     for(let i=0;i<categoryData.length;i++){
-//       if(categoryData[i].categorieName == category[i]){
-//         catId.push(categoryData[i]._id);
-//       }else if(req.query.category === 'All'){
-//         catId.push(categoryData[i]._id); 
-//       }
-//     }
-//     console.log("Data = "+catId);
-//     const productData = await Product.aggregate([
-//       {$match : {name : {$regex : '^'+Search, $options : 'i'},category : {$in : catId}, status : true }},
-//       {$sort : {price : sort}},
-//       {$skip : skip},
-//       {$limit : limit}
-//     ])
-//     console.log("Data = "+productData);
-
-//     const productCount = await Product.countDocuments({
-//       name: { $regex: Search, $options: 'i'},
-//       status:true,
-//       category: { $in:catId}
-//     });
-//     const totalPage = Math.ceil(productCount / limit);    
-//     const currentDate = new Date();
-
-//     const categoryOfferCheck = await Offer.find();
-//     categoryOfferCheck.forEach(async (x) => {
-//       if (x.endDate <= currentDate) {
-//         await Offer.updateOne({ _id: x._id }, { $set: { status: "Expired" } });
-//       } else {
-//         await Offer.updateOne({ _id: x._id }, { $set: { status: "Active" } });
-//       }
-//     });
-//     const productOfferCheck = await ProductOffer.find();
-//     productOfferCheck.forEach(async (x) => {
-//       if (x.endDate <= currentDate) {
-//         await ProductOffer.updateOne(
-//           { _id: x._id },
-//           { $set: { status: "Expired" } }
-//         );
-//       } else {
-//         await ProductOffer.updateOne(
-//           { _id: x._id },
-//           { $set: { status: "Active" }}
-//         );
-//       }
-//     });
-//     const categoryOffer = await Offer.find({ status: "Active" });
-    
-//     //const categoryOffer = await Offer.find({ status: "Active" }).populate("Categories");
-     
-//     const productOffer = await ProductOffer.find({ status: "Active" });
-
-//     const userName = await User.findOne({ _id: req.session.user_id });
-//     // const productData = await Product.find({ status: true })
-//     //   .limit(12)
-//     //   .sort("-createdAt");
-    
-//     if(req.session.user_id){
-//       const customer = true;
-//       res.render('./user/shop',{customer,userName,products:productData,category:categoryData,page,Search,price,totalPage,cat:category,categoryOffer,productOffer});
-       
-//     } else {
-//       const customer = false;
-//       res.render('./user/shop',{customer,products:productData,category:categoryData,page,Search,price,totalPage,cat:category,categoryOffer,productOffer});
-//     } 
-//     // const customer = true;
-//     // res.render('shop',{
-//     //   customer,
-//     //   userName,
-//     //   product: productData,
-//     //   category,
-//     //   categoryOffer,
-//     //   productOffer,});
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// }
-
-
 
 // Load Account Page
 const loadAccountPage = async (req,res)=>{

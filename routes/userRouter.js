@@ -27,7 +27,6 @@ userRouter.get('/logout',userController.doLogout);
 userRouter.get('/product-details/:productId',userController.loadProductDetailsPage);
 userRouter.get('/shop',userController.loadShopPage); 
 userRouter.get('/cart',userAuth.isLogin,cartController.loadCartPage);
-userRouter.get('/add-to-cart/:productId',userAuth.isLogin,cartController.addToCart);
 userRouter.get('/removeProduct',userAuth.isLogin,cartController.removeProduct);
 userRouter.get('/checkout',userAuth.isLogin,cartController.loadCheckout);
 userRouter.get('/addAddress',userAuth.isLogin,addressController.loadAddressPage);
@@ -43,6 +42,7 @@ userRouter.get('/addFromWish/:id',userAuth.isLogin,wishlistController.addFromWis
 userRouter.post('/register',userController.doRegister);
 userRouter.post('/verification',userController.doVerify);
 userRouter.post('/login',userController.doLogin);
+userRouter.post('/add-to-cart',cartController.addToCart);
 userRouter.post('/changeProductQuantity', cartController.changeProductQuantity);
 userRouter.post('/addAddress',addressController.addAddress);
 userRouter.post('/order',orderController.doOrder);

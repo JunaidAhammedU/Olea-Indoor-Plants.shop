@@ -2,10 +2,11 @@
 
             <section class="content-main">
                 <div class="row">
+
                     <form id="productOffer">
                     <div class="col-9">
                         <div class="content-header">
-                            <h2 class="content-title">Add Product Offer</h2>
+                            <h2 class="content-title">Edit Product Offer</h2>
                             <div>
                                 <button class="btn btn-md rounded font-sm hover-up" onclick="productOffer()">Publish</button>
                             </div>
@@ -17,7 +18,7 @@
                                 <h4>Basic</h4>
                             </div>
                             <div class="card-body">
-                                
+
                                     <div class="mb-4">
                                         <label class="form-label">Find Product</label>
                                         <select class="form-select" name="productName">
@@ -36,7 +37,8 @@
                                             <div class="mb-4">
                                                 <label class="form-label">Discount Percentage</label>
                                                 <div class="row gx-2">
-                                                    <input placeholder="%" type="text" class="form-control" name="discountPercentage" />
+                                                    <input placeholder="%" type="text" class="form-control" name="discountPercentage" value="<%= data.discountPercentage %>" />
+                                                    <input type="text" name="id" value="<%= data._id %>" hidden />
                                                 </div>
                                             </div>
                                         </div>
@@ -84,15 +86,17 @@
                     let formData = $("#productOffer").serialize();
                     console.log(formData);
                     $.ajax({
-                        url: '/admin/addProductOffer',
+                        url: '/admin/editProductOffer',
                         method: 'post',
                         data: formData,
                         success: (response) => {
-                            if (response.status == true) {
-                                toastr.success("Category offer placed");
-                                window.location.href = '/admin/loadProductOfferList';
-                            } else {
-                                toastr.error("Not Added Offer");
+                            if (response.success == true) {
+                                toastr.success("Product Updated")
+                                window.location = '/admin/loadProductOfferList'                                                               
+                            } else if(noValidation == true) {
+                                toastr.error("Fill the all fields..!"); 
+                            } else if(dateWrong == true) {
+                                toastr.error("Starting date is wrong"); 
                             }
                         }
                     })

@@ -4,6 +4,7 @@ const mongoose = require('mongoose'); // Erase if already required
 var productOfferSchema = new mongoose.Schema({
     productName:{
         type:mongoose.Schema.Types.ObjectId,
+        ref:"Product",
         required:true,
     },
     description:{

@@ -90,7 +90,6 @@ const AddProducts = async (req, res) => {
       status,
       images: images,
     });
-
     const saveProdData = await productData.save();
     if (saveProdData) {
       res.redirect("/admin/products");
@@ -131,6 +130,12 @@ const loadEditProduct = async (req, res) => {
 // Update product
 const updateProducts = async (req, res) => {
   try {
+    const images = [];
+    for (let i = 0; i < req.files.length; i++) {
+      
+      [i] = req.files[i].filename;
+    }
+
     const productId = req.params.productId;
     const { name, productQuantity, price, description, status, category } = req.body;
     const catData = await categoriesModel.findById({_id:category});
@@ -145,6 +150,7 @@ const updateProducts = async (req, res) => {
             category:catData._id,
             price,
             status,
+            images: images,
           },
         }
       )

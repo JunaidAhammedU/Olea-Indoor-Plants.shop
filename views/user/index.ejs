@@ -8,76 +8,37 @@
     <div class="ltn__slider-area ltn__slider-3  section-bg-1">
         <div class="ltn__slide-one-active slick-slide-arrow-1 slick-slide-dots-1">
             <!-- ltn__slide-item -->
-            <div class="ltn__slide-item ltn__slide-item-2  ltn__slide-item-3-normal--- ltn__slide-item-3 bg-image bg-overlay-theme-black-60---" data-bs-bg="/userAssets/img/slider/indoor-bg-1.jpg">
-                <div class="ltn__slide-item-inner  text-left">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-12 align-self-center">
-                                <div class="slide-item-info">
-                                    <div class="slide-item-info-inner ltn__slide-animation">
-                                        <h1 class="slide-title animated ">Get 20% Discount <br> PLANTS </h1>
-                                        <div class="slide-brief animated">
-                                            <p class="slider-div-p-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore.</p>
-                                        </div>
-                                        <div class="btn-wrapper animated">
-                                            <a href="/shop" class="theme-btn-1 btn btn-effect-1">Shop Now</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- ltn__slide-item -->
-            <div class="ltn__slide-item ltn__slide-item-2 ltn__slide-item-3-normal--- ltn__slide-item-3 bg-image bg-overlay-theme-black-60---" data-bs-bg="/userAssets/img/slider/indoor-bg-2.jpg">
-                <div class="ltn__slide-item-inner text-center">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-12 align-self-center">
-                                <div class="slide-item-info">
-                                    <div class="slide-item-info-inner ltn__slide-animation">
-                                        <div class="slide-video mb-50 d-none">
-                                            <a class="ltn__video-icon-2 ltn__video-icon-2-border" href="https://www.youtube.com/embed/tlThdr3O5Qo" data-rel="lightcase:myCollection">
-                                                <i class="fa fa-play"></i>
-                                            </a>
-                                        </div>
-                                        <h1 class="slide-title animated ">Get 20% Discount <br>PLANTS</h1>
-                                        <div class="slide-brief animated">
-                                            <p class="slider-div-p-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore.</p>
-                                        </div>
-                                        <div class="btn-wrapper animated">
-                                            <a href="/shop" class="theme-btn-1 btn btn-effect-1">Shop Now</a>
+            <% if (bannerData && bannerData.length > 0) { %>
+                <% bannerData.forEach(banner => { %>
+
+                    <div class="ltn__slide-item ltn__slide-item-2  ltn__slide-item-3-normal--- ltn__slide-item-3 bg-image bg-overlay-theme-black-60---" data-bs-bg="/assets/products/<%= banner.images %>">
+                        <div class="ltn__slide-item-inner  text-left">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-lg-12 align-self-center">
+                                        <div class="slide-item-info">
+                                            <div class="slide-item-info-inner ltn__slide-animation">
+                                                <h1 class="slide-title animated "><%= banner.bannerTitle %></h1>
+                                                <div class="slide-brief animated">
+                                                    <p class="slider-div-p-text"><%= banner.description %></p>
+                                                </div>
+                                                <div class="btn-wrapper animated">
+                                                    <a href="/shop" class="theme-btn-1 btn btn-effect-1">Shop Now</a>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <!-- ltn__slide-item -->
-            <div class="ltn__slide-item ltn__slide-item-2  ltn__slide-item-3-normal--- ltn__slide-item-3 bg-image bg-overlay-theme-black-60---" data-bs-bg="/userAssets/img/slider/indoor-bg-33.jpg">
-                <div class="ltn__slide-item-inner  text-right text-end">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-12 align-self-center">
-                                <div class="slide-item-info">
-                                    <div class="slide-item-info-inner ltn__slide-animation">
-                                        <h1 class="slide-title animated ">Get 20% Discount <br>PLANTS</h1>
-                                        <div class="slide-brief animated">
-                                            <p class="slider-div-p-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore.</p>
-                                        </div>
-                                        <div class="btn-wrapper animated">
-                                            <a href="/shop" class="theme-btn-1 btn btn-effect-1">Shop Now</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+            <% }) %>
+            <% } else { %>
+                <tr>
+                    <td class="text-danger" colspan="7">No Banner found.</td>
+                </tr>
+            <% } %>
             <!--  -->
         </div>
     </div>
@@ -90,21 +51,21 @@
                 <div class="col-lg-4 col-sm-6">
                     <div class="ltn__banner-item">
                         <div class="ltn__banner-img">
-                            <a href="shop.html"><img src="https://images.pexels.com/photos/4185963/pexels-photo-4185963.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Banner Image"></a>
+                            <a href="/shop"><img src="https://images.pexels.com/photos/4185963/pexels-photo-4185963.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Banner Image"></a>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6">
                     <div class="ltn__banner-item">
                         <div class="ltn__banner-img">
-                            <a href="shop.html"><img src="https://images.pexels.com/photos/3952029/pexels-photo-3952029.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Banner Image"></a>
+                            <a href="/shop"><img src="https://images.pexels.com/photos/3952029/pexels-photo-3952029.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Banner Image"></a>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6">
                     <div class="ltn__banner-item">
                         <div class="ltn__banner-img">
-                            <a href="shop.html"><img src="https://images.pexels.com/photos/4374576/pexels-photo-4374576.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Banner Image"></a>
+                            <a href="/shop"><img src="https://images.pexels.com/photos/4374576/pexels-photo-4374576.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Banner Image"></a>
                         </div>
                     </div>
                 </div>
@@ -168,10 +129,37 @@
                                             </ul>
                                         </div>
                                         <h2 class="product-title"><a href="product-details.html"><%= product.name %></a></h2>
-                                        <div class="product-price">
+                                        <!-- <div class="product-price">
                                             <span>₹<%= product.price %> </span>
                                             <del>₹ 799</del>
+                                        </div> -->
+
+                                        <!-- ===========OFFER PRICE MODULE=================== -->
+                                        <div>
+                                            <% const proOfferMatch = productOffer.find((x) => x.productName.equals(product._id)); %>
+                                            <% const offerMatch = categoryOffer.find((x) => x.category.equals(product.category)); %>
+                                            
+                                            <% if(proOfferMatch && offerMatch){ %>
+                                                <span class="stext-105 cl3">₹ <strong><%= (product.price - ((product.price * (offerMatch.discountPercentage + proOfferMatch.discountPercentage))/100)).toFixed(2) %></strong></span>
+                                                <span class="text-secondary stext-105 cl3"><strong><s>₹<%= product.price %></s></strong></span>
+                                                <span class="text-success stext-105 cl3"><strong><%= offerMatch.discountPercentage + proOfferMatch.discountPercentage %>% off</strong></span>
+
+                                            <% } else if(proOfferMatch && !offerMatch){ %>
+                                                <span class="stext-105 cl3"><strong>₹<%= (product.price - ((product.price * proOfferMatch.discountPercentage)/100)).toFixed(2) %></strong></span>
+                                                <span class="text-secondary stext-105 cl3"><strong><s>₹<%= product.price %></s></strong></span>
+                                                <span class="text-success stext-105 cl3"><strong><%= proOfferMatch.discountPercentage %>% off</strong></span>
+
+                                            <% } else if(offerMatch && !proOfferMatch){ %>
+                                                <span class="stext-105 cl3"><strong>₹<%= (product.price - ((product.price * offerMatch.discountPercentage)/100)).toFixed(2) %></strong></span>
+                                                <span class="text-secondary stext-105 cl3"><strong><s>₹<%= product.price %></s></strong></span>
+                                                <span class="text-success stext-105 cl3"><strong><%= offerMatch.discountPercentage %>% off</strong></span>
+
+                                            <% } else { %>
+                                                <span class="stext-105 cl3">₹ <strong><%= product.price %></strong></span>
+                                            <% } %>
                                         </div>
+                                        <!-- ============================== -->
+
                                     </div>
                                 </div>
                             </div>

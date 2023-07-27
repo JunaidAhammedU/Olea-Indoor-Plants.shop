@@ -87,6 +87,7 @@ const verifyPayment = async (req,res)=>{
     const details = req.body;
 
     const crypto = require('crypto');
+
     let hmac = crypto.createHmac('sha256', process.env.RAZORPAY_SECRET_KEY);
     hmac.update(details['payment[razorpay_order_id]']+'|'+details['payment[razorpay_payment_id]']);
     hmac = hmac.digest('hex');
@@ -100,6 +101,7 @@ const verifyPayment = async (req,res)=>{
         await Order.findByIdAndRemove(details['order.receipt']);
         return res.json({success:false});
     }
+    
   }catch(error){
       console.log(error.message);
   }

@@ -1,0 +1,69 @@
+<%- include('../partials/adminPartials/header.ejs') -%>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Category Offer List</h2>
+        </div>
+        <div>
+            <a href="/admin/addCategoryOffer" class="btn btn-primary btn-sm rounded">Create new</a>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <input type="text" placeholder="Search..." class="form-control" />
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select">
+                        <option>All category</option>
+                        <option>Electronics</option>
+                        <option>Clothings</option>
+                        <option>Something else</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select">
+                        <option>Latest added</option>
+                        <option>Cheap first</option>
+                        <option>Most viewed</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+        <div class="card-body">
+            <table class="table" id="myTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Category</th>
+                        <th scope="col">Discount Type</th>
+                        <th scope="col">Start Date</th>
+                        <th scope="col">End Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (cateOffers && cateOffers.length > 0) { %>
+                        <% cateOffers.forEach(offer => { %>
+                            <tr>
+                                <td><%= offer.category.categorieName %></td>
+                                <td><%= offer.discountPercentage%> %</td>
+                                <td><%= offer.startDate.toLocaleDateString() %></td>
+                                <td><%= offer.endDate.toLocaleDateString() %></td>
+                                <!-- <td>
+                                    <a href="/admin/editCategoryOffer/<%= offer.id %>" class="btn btn-sm font-sm rounded btn-brand"><i class="material-icons md-edit"></i> Edit</a>
+                                </td> -->
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td class="text-danger" colspan="7">No Category Offer Found.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<%- include('../partials/adminPartials/footer.ejs') -%>
