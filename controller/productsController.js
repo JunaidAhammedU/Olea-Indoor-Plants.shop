@@ -132,9 +132,7 @@ const updateProducts = async (req, res) => {
   try {
     const images = [];
     for (let i = 0; i < req.files.length; i++) {
-      
-      [i] = req.files[i].filename;
-    }
+      [i] = req.files[i].filename };
 
     const productId = req.params.productId;
     const { name, productQuantity, price, description, status, category } = req.body;
@@ -164,6 +162,8 @@ const updateProducts = async (req, res) => {
     res.status(500).send("An error occurred while updating the product.");
   }
 };
+
+
 
 // Unlist Product
 const unlistProduct = async (req, res) => {

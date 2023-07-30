@@ -30,7 +30,7 @@ const doOrder = async (req,res)=>{
         const totalPrice = parseInt(req.body.amount);
         const discount = parseInt(req.body.discountAmount);
 
-        const wallet = totalPrice - Total - discount;
+        const wallet = totalPrice;
         const status = paymentMethod === "COD" ? "placed" : "pending";
         const order = new Order({
 
@@ -59,13 +59,23 @@ const doOrder = async (req,res)=>{
               await Product.findByIdAndUpdate({ _id: pro }, { $inc: { productQuantity: -count } });              
             }
             if(paymentMethod === "COD"){
+              
                 const wal = totalPrice - Total;
                 await User.updateOne({_id:req.session.user_id},{$inc:{wallet:-wal}});
-
                 await Order.updateOne({_id:orderId},{$set:{month:date}})
                 await Cart.deleteOne({userName:req.session.user_id});  
                 return res.json({codStatus:true});
-            }else{
+
+            } else if(paymentMethod === "wallet"){
+
+              let extWalletMoney = userName.wallet - Total
+              await User.updateOne({_id:req.session.user_id},{$set:{wallet: extWalletMoney}});
+              await Order.updateOne({_id:orderId},{$set:{month:date}})
+              await Cart.deleteOne({userName:req.session.user_id});  
+              return res.json({walletStatus:true});
+
+            } else {
+
               const totalAmount = orderData.totalAmount;
               let order = await instance.orders.create({
                 amount: totalAmount*100,
@@ -82,6 +92,7 @@ const doOrder = async (req,res)=>{
     }
 }
 
+// verify Payment
 const verifyPayment = async (req,res)=>{
   try{
     const details = req.body;
@@ -101,11 +112,12 @@ const verifyPayment = async (req,res)=>{
         await Order.findByIdAndRemove(details['order.receipt']);
         return res.json({success:false});
     }
-    
   }catch(error){
       console.log(error.message);
   }
 }
+
+
 
 // admin place order
 const placedOrder = async (req,res)=>{
@@ -165,8 +177,8 @@ const placedOrder = async (req,res)=>{
               res.redirect("/account");
 
             }else{
-              const totalWallet = userWallet+orderData.orderWallet;
 
+              const totalWallet = userWallet+orderData.orderWallet;
               await Order.findByIdAndUpdate({_id:orderid},{$set:{status:"cancelled"}});
               await User.updateOne({_id:req.session.user_id},{$set:{wallet:totalWallet}});
               for (let i = 0; i < products.length; i++) { // Updating product count in DB
@@ -190,6 +202,42 @@ const placedOrder = async (req,res)=>{
     }
   }
 
+  // return order
+  const returnOrders = async(req,res)=>{
+    try {
+      const orderId = req.query.id
+      res.render('./user/returnOrder',{orderId:orderId})
+    } catch (error) {
+      console.log("error while loading Return order");
+    }
+  }
+
+  // Do Return.
+  const doReturn = async (req, res) => {
+    try {
+      const orderId = req.body.query;
+      const orderData = await Order.findById({ _id: orderId });
+      if (orderData) {
+        const currentDate = new Date();
+        const maxReturnDays = 7;
+        const maxReturnDate = new Date();
+        maxReturnDate.setDate(currentDate.getDate() - maxReturnDays);
+        if (orderData.date >= maxReturnDate) {
+           await Order.findByIdAndUpdate({ _id: orderId }, {$set:{status:'returned'}});
+          res.status(200).json({ status: true});
+        } else {
+          res.status(403).json({ noReturn: true });
+        }
+      } else {
+        res.status(404).json({ noOrder: true });
+      }
+    } catch (error) {
+      console.log("Error while processing Do Return:", error);
+      res.status(500).json({ message: "Error while processing Do Return." });
+    }
+  };
+  
+
 
 
 module.exports = {
@@ -198,4 +246,7 @@ module.exports = {
     placedOrder,
     orderDeliverd,
     cancelOrders,
+    returnOrders,
+    doReturn
+
 }

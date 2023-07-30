@@ -60,7 +60,8 @@ const viewCouponList = async (req, res) => {
 
 // Post Add Coupon
 const postAddCoupon = async(req,res)=>{
-    try{  
+    try{ 
+        
         const { code, discountType, startDate, expiryDate, discountAmount, maxCartAmount, maxDiscountAmount, maxUsers} = req.body;
         const coupon = new Coupon({
             code,

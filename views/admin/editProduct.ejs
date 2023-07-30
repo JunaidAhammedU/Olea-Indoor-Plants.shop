@@ -79,13 +79,16 @@
                 <div class="col-md-3">
                   <h6>4. Images</h6>
                 </div>
-                <div class="col-md-9">
-                  <div class="mb-4">
-                    <% product.images.forEach(image => { %>
-                      <img src="/assets/products/<%= image %>" class="img-sm img-thumbnail" alt="Item" />
+
+                <div class="col-md-9 d-flex">
+                  <% product.images.forEach(image => { %>
+                  <div class="mb-4" style="border: 0.5px solid rgba(83, 80, 80, 0.815);">
+                    <a href="/admin/removeImage/<%= image %>" class="icon material-icons md-close icon float-end"></a>
+                      <img src="/assets/products/<%= image %>" class="img-sm img-thumbnail " alt="Item"  />
+                    </div>
                     <% }) %>
-                  </div>
                 </div>
+
               </div>
 
               <div class="row">
@@ -95,7 +98,7 @@
                 <div class="col-md-9">
                   <div class="mb-4">
                     <label class="form-label">Upload New Images</label>
-                    <input class="form-control" type="file" name="images" multiple required>
+                    <!-- <input class="form-control" type="file" name="images" multiple> -->
                   </div>
                 </div>
               </div>

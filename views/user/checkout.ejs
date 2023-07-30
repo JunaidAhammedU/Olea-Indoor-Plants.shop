@@ -25,7 +25,8 @@
                             </div>
                         </div>
                     </div>
-                    <% }) %>     
+                    <% }) %> 
+                        
                     <hr>
 
                     <!-- Payment Option -->
@@ -33,6 +34,19 @@
                         <div class="ltn__checkout-payment-method mt-50">
                             <h2 class="title-2">Payment Method</h2>
                             <div id="checkout_accordion_1">
+                                <!-- card -->
+                                <% if (userName.wallet > 50) { %>
+                                    <div class="card">
+                                        <h5 class="ltn__card-title" data-bs-toggle="collapse" data-bs-target="#faq-item-2-2" aria-expanded="true"><input type="radio" class="payment_method_radio" id="payment_wallet" name="payment_method" value="wallet">
+                                            Available Wallet Money.
+                                        </h5>
+                                        <div id="faq-item-2-2" class="collapse show" data-bs-parent="#checkout_accordion_1">
+                                            <div class="card-body">
+                                                <p>Wallet : ₹.<%= userName.wallet %></p>
+                                            </div>
+                                        </div>
+                                    </div> 
+                                <% } %>
                                 <!-- card -->
                                 <div class="card">
                                     <h5 class="ltn__card-title" data-bs-toggle="collapse" data-bs-target="#faq-item-2-2" aria-expanded="true"><input type="radio" class="payment_method_radio" id="payment_cod" name="payment_method" value="COD">
@@ -79,7 +93,7 @@
                                     </tr>
                                     <tr>
                                         <td><strong>Order Total</strong></td>
-                                        <td><h2 class="block-element" >₹.</h2><h2 class="block-element" id="orderTotal"><%= Total %></h2></td>
+                                        <td><h2 class="block-element" >₹.</h2><h2 class="block-element" id="orderTotal"><%= totalPriceUpdate %></h2></td>
                                     </tr>                                                                          
                                 </tbody>
                             </table>
@@ -91,22 +105,30 @@
 
         <!--  -->
         <div class="container">
-            <div class="row">
-                <!-- <div class="col-md-6 mt-5">
-                    <div class="card">
-                        <div class="card-body">
-                          <p>STUDENT25</p>
+            <div class="row justify-content-center align-items-center mt-5">
+                <!--  -->
+
+                    <div class="col-lg-7 col-12 col-md-12">
+                        <div class="d-flex align-items-center" style="border: 2px dotted #0000008b; padding: 10px; height: 65px;">
+                            <% if (coupons && coupons.length > 0) { %>
+                                <% coupons.forEach(coupon => { %>
+                                    <span> { <%= coupon.code%> }, </span>
+                                <% }) %>
+                                <% } else { %>
+                                    <span>No Coupon Available!</span>
+                                <% } %>
                         </div>
                     </div>
-                </div> -->
-                <!--  -->
-                <div class="col-md-6 mt-5">
-                    <form id="coupon-form">
-                        <div class="cart-coupon">
-                          <input type="text" id="code" name="cart-coupon" placeholder="Coupon code">
-                          <button type="submit" class="btn theme-btn-2 btn-effect-2">Apply Coupon</button>
-                        </div>
-                    </form>                      
+
+                    <div class="col-lg-5 col-12 col-md-12">
+                        <form id="coupon-form">
+                            <div class="cart-coupon">
+                              <input type="text" id="code" name="cart-coupon" placeholder="Coupon code">
+                              <button type="submit" class="btn theme-btn-2 btn-effect-2">Apply Coupon</button>
+                            </div>
+                        </form>                         
+                    </div>
+
                 </div>
             </div>
         </div> 
@@ -158,6 +180,9 @@
                 success:(response)=>{
                     if(response.codStatus == true){
                         toastr.success('Order Placed', "OLEA Indoor");
+                        window.location.href = '/';
+                    } else if(response.walletStatus){
+                        toastr.success('Order Placed With Wallet.', "OLEA Indoor");
                         window.location.href = '/';
                     } else {
                         razorpayPayment(response.order)

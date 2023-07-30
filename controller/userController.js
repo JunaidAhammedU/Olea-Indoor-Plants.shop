@@ -283,8 +283,7 @@ const loadProductDetailsPage = async (req, res) => {
 };
 
 
-// // Load Shop page
-
+ // Load Shop page
 const loadShopPage = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
@@ -305,16 +304,22 @@ const loadShopPage = async (req, res) => {
     let catId = [];
 
     for (let i = 0; i < categoryData.length; i++) {
-      if (categoryData[i].categorieName === category[i]) {
-        catId.push(categoryData[i]._id);
-      } else if (req.query.category === "All") {
+      if (category.includes(categoryData[i].categorieName) || category === "All") {
         catId.push(categoryData[i]._id);
       }
     }
 
+    const searchQuery = req.query.search || "";
+
+    const searchFilter = searchQuery.trim() ? { name: { $regex: new RegExp(searchQuery, "i") } } : {};
+
     const productData = await Product.aggregate([
       {
-        $match: { name: { $regex: "^" + Search, $options: "i" }, category: { $in: catId }, status: true },
+        $match: {
+          ...searchFilter,
+          category: { $in: catId },
+          status: true,
+        },
       },
       { $sort: { price: sort } },
       { $skip: skip },
@@ -326,12 +331,13 @@ const loadShopPage = async (req, res) => {
       status: true,
       category: { $in: catId },
     });
-    const totalPage = Math.ceil(productCount / limit);
+    const totalPage = Math.max(1, Math.ceil(productCount / limit));
 
 
     const currentDate = new Date();
     const categoryOfferCheck = await Offer.find();
     for (const offer of categoryOfferCheck) {
+      
       if (offer.endDate <= currentDate) {
         await Offer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
       } else {

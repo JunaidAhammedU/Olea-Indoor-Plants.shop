@@ -62,7 +62,32 @@
                                              <button type="button" class="quantity-right-plus btn" onclick="changeQuantity('<%= cartData._id %>','<%= product.productId._id %>',1)">+</button>
                                           </td>
 
-                                          <td class="cart-product-subtotal">$<%= product.productId.price %></td>
+                                          <!-- ===========OFFER PRICE MODULE=================== -->
+                                          <td>
+                                            <% const proOfferMatch = productOffer.find((x) => x.productName.equals(product.productId._id)); %>
+                                            <% const offerMatch = categoryOffer.find((x) => x.category._id.equals(product.productId.category)); %> 
+                
+                                            <% if(proOfferMatch && offerMatch){ %>
+                                              <span class="stext-105 cl3">₹<%= (product.productId.price - ((product.productId.price * (offerMatch.discountPercentage + proOfferMatch.discountPercentage))/100)).toFixed(2) %></span>
+                                              <span class="text-secondary stext-105 cl3"><s>₹<%= product.productId.price %></s></span>
+                                              <span class="text-success stext-105 cl3"><%= offerMatch.discountPercentage + proOfferMatch.discountPercentage %>% off</span>
+                                          
+                                            <% } else if(proOfferMatch && !offerMatch){ %>
+                                              <span class="stext-105 cl3">₹<%= (product.productId.price - ((product.productId.price * proOfferMatch.discountPercentage)/100)).toFixed(2) %></span>
+                                              <span class="text-secondary stext-105 cl3"><s>₹<%= product.productId.price %></s></span>
+                                              <span class="text-success stext-105 cl3"><%= proOfferMatch.discountPercentage %>% off</span>
+                                          
+                                            <% } else if(offerMatch && !proOfferMatch){ %>
+                                              <span class="stext-105 cl3">₹<%= (product.productId.price - ((product.productId.price * offerMatch.discountPercentage)/100)).toFixed(2) %></span>
+                                              <span class="text-secondary stext-105 cl3"><s>₹<%= product.productId.price %></s></span>
+                                              <span class="text-success stext-105 cl3"><%= offerMatch.discountPercentage %>% off</span>
+                                          
+                                            <% } else { %>
+                                              <span class="stext-105 cl3">₹<%= product.productId.price %></span>
+                                            <% } %>											
+                                          </td>
+                                      <!-- ============================== -->
+
                                         </tr>
                                       <% } %>
                                       <% }) %>                                      
@@ -88,9 +113,13 @@
                                         <td>Vat</td>
                                         <td>₹00.00</td>
                                     </tr>
-                                    <tr>
+                                    <!-- <tr>
                                         <td><strong>Order Total</strong></td>
-                                        <td><strong><h4>₹<span id="totalAmount"><%= Total %></span></h4></strong></td>
+                                        <td><strong><h4>₹<span id="totalAmount"><%= totalPriceUpdate %></span></h4></strong></td>
+                                    </tr> -->
+                                    <tr>
+                                      <td><strong>Order Total</strong></td>
+                                      <td><strong><h4>₹<span id="totalAmount"><%= totalPriceUpdate %></span></h4></strong></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -125,30 +154,60 @@
 
 
     <script>
-        function changeQuantity(cartId, proId, count) {
-          let quantity = parseInt(document.getElementById(proId).innerHTML);
-            count = parseInt(count)
-          $.ajax({
-            url:'/changeProductQuantity',
-            data:{
-              cart: cartId,
-              product: proId,
-              count: count,
-              quantity:quantity,
-            },
-            method:'post',
-            success:(response)=>{
-              if (response.removeProduct){
-                alert('product removed from cart');
-                location.reload();
-              } else if (stockOut === true){
-                alert("Out of Stock");
-              } else {
-                document.getElementById(proId).innerHTML = quantity + count;
-              }           
-            }
-          })
-        }
+
+       toastr.options = {
+                    "closeButton": true,
+                    "newestOnTop": false,
+                    "progressBar": true,
+                    "positionClass": "toast-top-center",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "3000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "slideDown",
+                    "hideMethod": "fadeOut"
+                };
+
+              //   function updateTotalAmount() {
+              //   const quantityElements = document.getElementsByClassName('quantity');
+              //   const productTotalElements = document.getElementsByClassName('cart-product-total');
+              //   let totalAmount = 0;
+
+              //   for (let i = 0; i < quantityElements.length; i++) {
+              //     const quantity = parseInt(quantityElements[i].textContent);
+              //     const productPrice = parseFloat(productTotalElements[i].textContent);
+              //     totalAmount += quantity * productPrice;
+              //   }
+
+              //   document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+              // }
+              //
+              function changeQuantity(cartId, proId, count) {
+                let quantity = parseInt(document.getElementById(proId).innerHTML);
+                  count = parseInt(count)
+                $.ajax({
+                  url:'/changeProductQuantity',
+                  data:{
+                    cart: cartId,
+                    product: proId,
+                    count: count,
+                    quantity:quantity,
+                  },
+                  method:'post',
+                  success:(response)=>{
+                    if (response.removeProduct){
+                      alert('product removed from cart');
+                      location.reload();
+                    } else {
+                      document.getElementById(proId).innerHTML = quantity + count;
+                    }           
+                  }
+                })
+              }
       </script>
       
     <%- include('../partials/userPartials/footer.ejs') -%>

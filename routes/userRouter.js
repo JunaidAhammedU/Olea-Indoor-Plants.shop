@@ -36,6 +36,8 @@ userRouter.get('/forgetPassword',userAuth.isLogout,userController.loadForgetPass
 userRouter.get('/wishlist',userAuth.isLogin,wishlistController.loadWishlist);
 userRouter.get('/removeWishlist/:id',userAuth.isLogin,wishlistController.removeWishlist);
 userRouter.get('/addFromWish/:id',userAuth.isLogin,wishlistController.addFromWish);
+userRouter.get('/return_order',userAuth.isLogin,orderController.returnOrders);
+
 
 
 //POST method // routes in user side.
@@ -54,6 +56,8 @@ userRouter.post('/verifyPayment', orderController.verifyPayment);
 userRouter.post('/addToWishlist',wishlistController.addToWishlist);
 userRouter.post('/applyCoupon',couponController.applyCoupon);
 userRouter.post('/loginOtpVerify',userController.loginOtp);
+userRouter.post('/return',userAuth.isLogin,orderController.doReturn);
+
 
 
 
