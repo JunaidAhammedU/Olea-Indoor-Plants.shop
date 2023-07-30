@@ -92,11 +92,13 @@ const addToCart = async (req, res) => {
     const userData = await User.findOne({ _id: req.session.user_id});
     const productData = await Product.findOne({ _id: productId });
     const user = req.session.user_id
+
     if (user) {
       const userId = req.session.user_id;
       const cartData = await Cart.findOne({ userName: userId });
-
+      
     if(productData.productQuantity > 0){
+
       if (cartData) {
         const productExist = cartData.products.findIndex(
           (product) => product.productId.toString() === productId

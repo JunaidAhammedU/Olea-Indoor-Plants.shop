@@ -102,9 +102,8 @@
                                                     <a class="dropdown-item" href="/admin/placed_orders?id=<%= orderItem._id%>">Placed</a>
                                                     <a class="dropdown-item" href="/admin/deliverd_orders?id=<%= orderItem._id%>">Delivered</a>
                                                     <a class="dropdown-item" href="/admin/cancel_orders?id=<%= orderItem._id%>" onclick=" return confirm('Are you sure you want to Cancel this Order?');" >Cancel Order</a>
-                                                    <a class="dropdown-item" href="/admin/view_orders?id=<%= orderItem._id%>">View Orders</a>
+                                                    <a class="dropdown-item" href="/admin/view_orders/<%= orderItem._id%>">View Orders</a>
                                                 </div>
-                                            
                                             <% } %>
                                             <%  if (orderItem.status === "delivered") { %>
                                                 <div class="dropdown-menu">
@@ -113,12 +112,12 @@
                                             <% } %>
                                             <%  if (orderItem.status === "cancelled") { %>
                                                 <div class="dropdown-menu">
-                                                    <a class="dropdown-item" href="/admin/view_orders?id=<%= orderItem._id%>">View Orders</a>
+                                                    <a class="dropdown-item" href="/admin/view_orders/<%= orderItem._id%>">View Orders</a>
                                                 </div>
                                             <% } %>
                                             <% if (orderItem.status === "returned") { %>
                                                 <div class="dropdown-menu">
-                                                    <a class="dropdown-item" href="/admin/view_orders?id=<%= orderItem._id%>">View Orders</a>
+                                                    <a class="dropdown-item" href="/admin/view_orders/<%= orderItem._id%>">View Orders</a>
                                                 </div>
                                             
                                             <% } %>

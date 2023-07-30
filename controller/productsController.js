@@ -164,7 +164,6 @@ const updateProducts = async (req, res) => {
 };
 
 
-
 // Unlist Product
 const unlistProduct = async (req, res) => {
   try {

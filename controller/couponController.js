@@ -59,27 +59,32 @@ const viewCouponList = async (req, res) => {
 };
 
 // Post Add Coupon
-const postAddCoupon = async(req,res)=>{
-    try{ 
-        
-        const { code, discountType, startDate, expiryDate, discountAmount, maxCartAmount, maxDiscountAmount, maxUsers} = req.body;
-        const coupon = new Coupon({
-            code,
-            discountType,
-            startDate,
-            expiryDate,
-            discountAmount,
-            maxCartAmount,
-            maxDiscountAmount,
-            maxUsers,
-        })
-        const couponData = await coupon.save();
-        if(couponData){
+const postAddCoupon = async (req, res) => {
+    try {
+        const { code, discountType, startDate, expiryDate, discountAmount, maxCartAmount, maxDiscountAmount, maxUsers } = req.body;
+        const couponCode = await Coupon.findOne({ code: code });
+
+        if (couponCode) {
             res.redirect('/admin/viewCouponList');
-        }else{
-            res.redirect('/admin/viewCouponList');
+        } else {
+            const coupon = new Coupon({
+                code,
+                discountType,
+                startDate,
+                expiryDate,
+                discountAmount,
+                maxCartAmount,
+                maxDiscountAmount,
+                maxUsers,
+            });
+            const couponData = await coupon.save();
+            if (couponData) {
+                res.redirect('/admin/viewCouponList');
+            } else {
+                res.status(500).json({ status: false });
+            }
         }
-    }catch(error){
+    } catch (error) {
         console.log(error.message);
         console.error('Error occurred while loading post coupon page:', error);
         res.status(500).send('Error occurred while loading post coupon page.');
@@ -162,9 +167,7 @@ const loadEditCoupon = async (req, res)=>{
 // edit coupon
 const editCoupon = async (req,res)=>{
     try{
-        console.log(req.body);
         const couponId = req.params.couponId;
-
         const coupon = await Coupon.findByIdAndUpdate({_id:couponId},{
             code:req.body.code,
             discountType:req.body.discountType,
