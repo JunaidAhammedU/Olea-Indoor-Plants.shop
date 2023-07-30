@@ -202,57 +202,29 @@ const loadOrders = async (req, res) => {
 
 
 // view orders
-// const viewOrders = async(req,res)=>{
-//   try {
-//     const admin = req.session.admin_id;
-//     const orderId = req.params.orderId;
-//     const cartData = await Cart.findOne({
-//       userName: req.session.user_id,
-//     }).populate("products.productId");
+const viewOrders = async(req,res)=>{ 
+  try {
+    const admin = req.session.admin_id;
+    const orderId = req.params.orderId;
+    const orderData = await Order.findById(orderId).populate('products.productId');
+    const userData = await User.findById({_id:orderData.userId})
 
-//     const categoryOffer = await Offer.find({status:'Active'}).populate('category');
-//     const productOffer = await ProductOffer.find({status:'Active'}); 
-//     // const category = await Category.find({status:true});
-//     const orderData = await Order.findOne({_id:orderId}).populate({ path: "products.productId", select: "name images price" }).exec();
-//     if(orderData){
+    // fetching actual product details with help of promise all.
+    const productData = await Promise.all(orderData.products.map(async (product) => {
+      const productDetails = await Product.findById(product.productId);
+      return {
+        name: productDetails.name,
+        price: productDetails.price,
+        images: productDetails.images,
+      };
+    }));
 
-//       if (cartData.products.length > 0) {
-
-//         const products = cartData.products;
-//         let totalPriceUpdate = 0;
-
-//         for(const item of products){
-
-//           const productId = item.productId._id;
-//           const proData = await Product.findOne({_id:productId});
-//           const quantity = item.count;
-//           const proOfferMatch = productOffer.find((x) => x.productName.equals(productId));
-//           const offerMatch = categoryOffer.find((x) => x.category._id.equals(proData.category));
-//           if(proOfferMatch && offerMatch){
-
-//             const offerPrice = proData.price - ((proData.price * (offerMatch.discountPercentage + proOfferMatch.discountPercentage))/100);
-//             totalPriceUpdate += quantity * offerPrice;
-//           }else if(proOfferMatch && !offerMatch){
-
-//             const offerPrice = proData.price - ((proData.price * proOfferMatch.discountPercentage)/100);
-//             totalPriceUpdate += quantity * offerPrice;
-//           }else if(offerMatch && !proOfferMatch){
-
-//             const offerPrice = proData.price - ((proData.price * offerMatch.discountPercentage )/100);
-//             totalPriceUpdate += quantity * offerPrice;
-//           }else{
-//             totalPriceUpdate += quantity * proData.price;
-//           }
-//          }
-
-//          res.render('./admin/pageOrdersDetails',{admin:admin,orderData:orderData,products,totalPriceUpdate})
-//       }
-
-//     }
-//   } catch (error) {
-//     res.status(500).json({ message: "Error while processing view orders." });
-//   } 
-// }
+    res.render('./admin/pageOrdersDetails',{admin:admin, productData, orderData,userData})
+   
+  } catch (error) {
+    res.status(500).json({ message: "Error while processing view orders." });
+  } 
+}
 
 
 // cancel Orders
@@ -392,5 +364,5 @@ module.exports = {
   // editBannerPage,
   // editBanner
   deleteBanner,
-  // viewOrders
+   viewOrders
 };
