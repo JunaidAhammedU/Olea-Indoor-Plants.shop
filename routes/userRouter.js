@@ -44,19 +44,19 @@ userRouter.get('/return_order',userAuth.isLogin,orderController.returnOrders);
 userRouter.post('/register',userController.doRegister);
 userRouter.post('/verification',userController.doVerify);
 userRouter.post('/login',userController.doLogin);
-userRouter.post('/add-to-cart',cartController.addToCart);
-userRouter.post('/changeProductQuantity', cartController.changeProductQuantity);
-userRouter.post('/addAddress',addressController.addAddress);
-userRouter.post('/order',orderController.doOrder);
-userRouter.post('/change-account-details',userController.changeAcctDetails);
+userRouter.post('/add-to-cart',userAuth.isLogin,cartController.addToCart);
+userRouter.post('/changeProductQuantity',userAuth.isLogin, cartController.changeProductQuantity);
+userRouter.post('/addAddress',userAuth.isLogin,addressController.addAddress);
+userRouter.post('/order',userAuth.isLogin,orderController.doOrder);
+userRouter.post('/change-account-details',userAuth.isLogin,userController.changeAcctDetails);
 userRouter.post('/forgetPassword',userController.doforgetPassword);
 userRouter.post('/forget_password',userController.forgetPassword);
 userRouter.post('/forgtOtpVerify',userController.doForOtpVerify);
-userRouter.post('/verifyPayment', orderController.verifyPayment);
-userRouter.post('/addToWishlist',wishlistController.addToWishlist);
-userRouter.post('/applyCoupon',couponController.applyCoupon);
+userRouter.post('/verifyPayment',userAuth.isLogin, orderController.verifyPayment);
+userRouter.post('/addToWishlist',userAuth.isLogin,wishlistController.addToWishlist);
+userRouter.post('/applyCoupon',userAuth.isLogin,couponController.applyCoupon);
 userRouter.post('/loginOtpVerify',userController.loginOtp);
-userRouter.post('/return',userAuth.isLogin,orderController.doReturn);
+userRouter.post('/return',userAuth.isLogin,userAuth.isLogin,orderController.doReturn);
 
 
 

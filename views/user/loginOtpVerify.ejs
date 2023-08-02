@@ -361,7 +361,7 @@
                                 <input type="text" name="userOtp" value="<%= loginOtpData.Lotp %>" hidden>
                                 <div class="btn-wrapper text-center">
                                     <button class="theme-btn-1 btn reverse-color btn-block"
-                                        type="submit">CONFIRM</button>
+                                        type="submit">CONFIRM OTP</button>
                                 </div>
                             </form>
                         </div>
@@ -370,5 +370,36 @@
                 <!--  -->
             </div>
         </div>
+
+        <!-- <script>
+
+            function startTimer(duration, display) {
+                var timer = duration, minutes, seconds;
+                setInterval(function () {
+                    minutes = parseInt(timer / 60, 10)
+                    seconds = parseInt(timer % 60, 10);
+
+                    minutes = minutes < 10 ? "0" + minutes : minutes;
+                    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                    display.textContent = minutes + ":" + seconds;
+
+                    if (--timer < 0) {
+                        timer = duration;
+                    }
+                }, 1000);
+            }
+
+            var countdown = document.getElementById("countdown");
+            var countdownTimer = document.getElementById("countdown-timer");
+
+            startTimer(15, countdown);
+            // Update timer element and display message when OTP expires
+            function countdownExpired() {
+            countdownTimer.innerHTML = 'OTP has expired. Resend the OTP <a href="/resend/>here</a>.';
+            }
+            setTimeout(countdownExpired, 15000);
+        </script> -->
+
         <!--  otp-page AREA END -->
         <%- include('../partials/userPartials/footer.ejs') %>

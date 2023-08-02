@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const Order = require("../models/orderModel");
 const Product = require("../models/productsModel");
 const ProductOffer = require("../models/productOfferModel");
+const dashboardHelper = require("../helpers/dashboardHelper")
 const Category = require("../models/categoriesModel");
 const Offer = require("../models/categorieOfferModel");
 const Banner = require("../models/bannerModel");
@@ -54,16 +55,56 @@ const admindDoLogout = (req, res) => {
   }
 };
 
+
 //load Dashboard
 const loadDashboard = async (req, res) => {
   try {
-    const admin = req.session.admin_id;
-    res.render("./admin/dashboard", { admin: admin });
+    
+        const today = new Date();
+        today.setHours( 0, 0, 0, 0 )
+        const yesterday = new Date(today)
+        yesterday.setDate( today.getDate() - 1 );
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        const currentMonthStartDate = new Date(currentYear, currentMonth, 1, 0, 0, 0);
+    //---------
+    const promises = [
+      dashboardHelper.totalRevenue(),
+      dashboardHelper.paymentMethod(),
+      dashboardHelper.dailyChart(), 
+      dashboardHelper.categorySales(),
+      dashboardHelper.monthTotalRevenue(currentMonthStartDate, now)
+    ]
+    const results = await Promise.all( promises )
+
+    //---------
+
+    const totalRevenue = results[0]
+    const paymentMethod = results[1]
+    const dailyChart = results[2]
+    const categorySales = results[3]
+    const monthTotalRevenue = results[4]
+
+    //---------
+    const onlinePayment = paymentMethod && paymentMethod.length > 0 ? paymentMethod[0].amount.toString() : 0
+    const codPayAmount = paymentMethod && paymentMethod.length > 0 ? paymentMethod[1].amount.toString() : 0
+
+    // rendering the admin dashboard
+    res.render("./admin/dashboard", {
+       admin: req.session.admin_id,
+       totalRevenue : totalRevenue,
+       onlinePayment : onlinePayment,
+       codPayAmount : codPayAmount,
+       dailyChart:dailyChart,
+       categorySales : categorySales,     
+       monthTotalRevenue:monthTotalRevenue
+      });
+
   } catch (error) {
-    console.log("admin dashboard error");
+    console.log(error.message);
   }
 };
-
 
 // user list.
 const loadUsersList = async (req, res) => {
@@ -207,7 +248,7 @@ const viewOrders = async(req,res)=>{
     const admin = req.session.admin_id;
     const orderId = req.params.orderId;
     const orderData = await Order.findById(orderId).populate('products.productId');
-    const userData = await User.findById({_id:orderData.userId})
+    const userData = await User.findById({_id:orderData.userId});
 
     // fetching actual product details with help of promise all.
     const productData = await Promise.all(orderData.products.map(async (product) => {
@@ -219,8 +260,8 @@ const viewOrders = async(req,res)=>{
       };
     }));
 
-    res.render('./admin/pageOrdersDetails',{admin:admin, productData, orderData,userData})
-   
+    res.render('./admin/pageOrdersDetails',{admin:admin, productData, orderData,userData })
+    
   } catch (error) {
     res.status(500).json({ message: "Error while processing view orders." });
   } 
