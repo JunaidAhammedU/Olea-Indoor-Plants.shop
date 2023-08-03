@@ -130,9 +130,9 @@ const loadEditProduct = async (req, res) => {
 // Update product
 const updateProducts = async (req, res) => {
   try {
-    const images = [];
-    for (let i = 0; i < req.files.length; i++) {
-      [i] = req.files[i].filename };
+    // const images = [];
+    // for (let i = 0; i < req.files.length; i++) {
+    //   [i] = req.files[i].filename };
 
     const productId = req.params.productId;
     const { name, productQuantity, price, description, status, category } = req.body;
@@ -148,7 +148,7 @@ const updateProducts = async (req, res) => {
             category:catData._id,
             price,
             status,
-            images: images,
+            //images: images,
           },
         }
       )

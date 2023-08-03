@@ -17,11 +17,23 @@ var instance = new Razorpay({
 // Do order
 const doOrder = async (req,res)=>{
     try{
+        let flag = 0;
         const userName = await User.findById({_id:req.session.user_id});
-        const cartData = await Cart.findOne({userName:req.session.user_id});
+        // const cartData = await Cart.findOne({userName:req.session.user_id});
+        const cartData = await Cart.findOne({userName:req.session.user_id}).populate("products.productId");
+
+        cartData.products.forEach((product)=>{
+          if(product.count >= product.productId.productQuantity){
+            flag++
+          }
+        })
+       
+        if(flag != 0){
+          res.json({stockQty: true});
+        }else{
+
         const Total = parseInt(req.body.amount);      
         const products = cartData.products;
-
         //order ID genarating
         var orderedDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
         var uniqueId = Math.floor(Math.random() * 1115500).toString().padStart(3, '0');
@@ -55,9 +67,14 @@ const doOrder = async (req,res)=>{
         
         if (orderData) {
             for (let i = 0; i < products.length; i++) {
-              const pro = products[i].productId;
-              const count = Number(products[i].count)
-              await Product.findByIdAndUpdate({ _id: pro }, { $inc: { productQuantity: -count } });              
+                const proId = products[i].productId;
+                const proQty = products[i].count;
+                const productData = await Product.findOne({_id:proId})
+                
+                if(productData.productQuantity >= 1 ){
+                  const updateQty = productData.productQuantity - proQty
+                  await Product.findByIdAndUpdate(proId, { $inc: { productQuantity: updateQty } });              
+                }
             }
             if(paymentMethod === "COD"){
               
@@ -69,11 +86,11 @@ const doOrder = async (req,res)=>{
 
             } else if(paymentMethod === "wallet"){
 
-              let extWalletMoney = userName.wallet - Total
-              await User.updateOne({_id:req.session.user_id},{$set:{wallet: extWalletMoney}});
-              await Order.updateOne({_id:orderId},{$set:{month:date}})
-              await Cart.deleteOne({userName:req.session.user_id});  
-              return res.json({walletStatus:true});
+                let extWalletMoney = userName.wallet - Total
+                await User.updateOne({_id:req.session.user_id},{$set:{wallet: extWalletMoney}});
+                await Order.updateOne({_id:orderId},{$set:{month:date}})
+                await Cart.deleteOne({userName:req.session.user_id});  
+                return res.json({walletStatus:true});
 
             } else {
 
@@ -88,8 +105,9 @@ const doOrder = async (req,res)=>{
         }else{
             res.redirect('/checkout');
         }
+      }
     }catch(error){
-        console.log(error.message);
+        console.log(error);
     }
 }
 

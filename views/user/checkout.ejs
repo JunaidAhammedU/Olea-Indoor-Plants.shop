@@ -185,6 +185,9 @@
                     } else if(response.walletStatus){
                         toastr.success('Order Placed With Wallet.', "OLEA Indoor");
                         window.location.href = '/';
+                    }else if(response.stockQty == true){
+                         toastr.warning("Out of stock! change the product quantity or Choose another one.");
+                        // window.location.href = '/';
                     } else {
                         razorpayPayment(response.order)
                     }
