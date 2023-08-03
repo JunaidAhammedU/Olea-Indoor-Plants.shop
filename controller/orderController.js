@@ -21,11 +21,12 @@ const doOrder = async (req,res)=>{
         const cartData = await Cart.findOne({userName:req.session.user_id});
         const Total = parseInt(req.body.amount);      
         const products = cartData.products;
+
         //order ID genarating
         var orderedDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
         var uniqueId = Math.floor(Math.random() * 1115500).toString().padStart(3, '0');
         var order_Id =  orderedDate + '-' + uniqueId;
-        //
+        //------
         const paymentMethod = req.body.payment_method;
         const totalPrice = parseInt(req.body.amount);
         const discount = parseInt(req.body.discountAmount);
@@ -166,7 +167,6 @@ const placedOrder = async (req,res)=>{
           if(orderData.paymentMethod == "onlinePayment"){
 
               const totalWallet = orderData.Amount+userWallet
-              console.log(totalWallet);
               await User.updateOne({_id:req.session.user_id},{$set:{wallet:totalWallet}});
               await Order.findByIdAndUpdate({_id:orderid},{$set:{status:"cancelled"}});
               for (let i = 0; i < products.length; i++) { // Updating product count in DB
@@ -216,15 +216,22 @@ const placedOrder = async (req,res)=>{
   const doReturn = async (req, res) => {
     try {
       const orderId = req.body.query;
+      const user = req.session.user_id; 
       const orderData = await Order.findById({ _id: orderId });
+      const userData = await User.findById({_id:user});
+      const userWallet = userData.wallet;
+
       if (orderData) {
         const currentDate = new Date();
         const maxReturnDays = 7;
         const maxReturnDate = new Date();
         maxReturnDate.setDate(currentDate.getDate() - maxReturnDays);
         if (orderData.date >= maxReturnDate) {
-           await Order.findByIdAndUpdate({ _id: orderId }, {$set:{status:'returned'}});
+          const totalWallet = orderData.Amount+userWallet
+          await User.updateOne({_id:req.session.user_id},{$set:{wallet:totalWallet}});
+          await Order.findByIdAndUpdate({ _id: orderId }, {$set:{status:'returned'}});
           res.status(200).json({ status: true});
+
         } else {
           res.status(403).json({ noReturn: true });
         }
@@ -236,9 +243,36 @@ const placedOrder = async (req,res)=>{
       res.status(500).json({ message: "Error while processing Do Return." });
     }
   };
+
+  // After return order Re shipping.
+  const reShipOrder = async (req,res)=>{                          
+    try {
+      const orderId = req.params.orderId;
+      const user = req.session.user_id
+      const orderData = await Order.findById({_id:orderId});
+      const userData = await User.findById(user);
+      const orderAmount = orderData.Amount;
+      const userWallet = userData.wallet;
+      const wal = userWallet - orderAmount;
+
+      if(orderData){
+
+        if(userWallet > wal){
+          await User.findByIdAndUpdate(user, {$set: {wallet: wal}});
+          await Order.findByIdAndUpdate({ _id: orderId }, {$set:{status:'delivered'}});
+          res.redirect("/admin/orders");
+        } else {
+          res.redirect("/admin/orders");
+        }
+
+      }else{
+        res.redirect("/admin/orders")
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
   
-
-
 
 module.exports = {
     doOrder,
@@ -247,6 +281,7 @@ module.exports = {
     orderDeliverd,
     cancelOrders,
     returnOrders,
-    doReturn
+    doReturn,
+    // reShipOrder
 
 }

@@ -48,6 +48,7 @@ const loadHome = async (req, res) => {
 
     const currentDate = new Date();
     const categoryOfferCheck = await Offer.find();
+    
     for (const offer of categoryOfferCheck) {
       if (offer.endDate <= currentDate) {
         await Offer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });

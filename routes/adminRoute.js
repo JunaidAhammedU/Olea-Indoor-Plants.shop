@@ -37,7 +37,7 @@ adminRouter.get('/listProduct/:productId',adminAuth.isLogin,productsController.l
 adminRouter.get('/usersList',adminAuth.isLogin,adminController.loadUsersList);
 adminRouter.get('/userBlock/:userId',adminAuth.isLogin,adminController.usersBlock);
 adminRouter.get('/userUnblock/:userId',adminAuth.isLogin,adminController.usersUnblock);
-
+// adminRouter.get('/reShip/:orderId',adminAuth.isLogin,orderController.reShipOrder);
 adminRouter.get('/view_orders/:orderId',adminAuth.isLogin,adminController.viewOrders);
 
 adminRouter.get('/orders',adminAuth.isLogin,adminController.loadOrders);

@@ -11,74 +11,73 @@ const Category = require("../models/categoriesModel")
 
 
 // load cart page
-const loadCartPage = async (req, res) => {
+const loadCartPage = async (req, res) => {    
   try {
     const userId = req.session.user_id;
-
     const userName = await User.findOne({ _id: userId });
-    // const cartData = await Cart.findOne({ userName: userId })
-    //   .populate({path: "products.productId", select: "name images price" }).exec();
-    
-    const cartData = await Cart.findOne({ userName: userId })
-      .populate({ path: "products.productId", select: "name images price" }).exec();
-      console.log(cartData)
-      
+    const cartData = await Cart.findOne({ userName: userId }).populate({ path: "products.productId"})
+     
       const categoryOffer = await Offer.find({ status: 'Active' }).populate('category');
       const productOffer = await ProductOffer.find({status:'Active'})
       const category = await Category.find({status:true});
+    
+      if (userId) {
+        if(cartData){
+          if (cartData.products.length > 0) {
 
-      if (cartData.products.length > 0) {
-        const products = cartData.products;
-        let totalPriceUpdate = 0;
-        for(const item of products){
-          const productId = item.productId._id;
-          const proData = await Product.findOne({_id:productId});
-          const quantity = item.count;
-          const proOfferMatch = productOffer.find((x) => x.productName.equals(productId));
-          const offerMatch = categoryOffer.find((x) => x.category._id.equals(proData.category));
-          if(proOfferMatch && offerMatch){
-            const offerPrice = proData.price - ((proData.price * (offerMatch.discountPercentage + proOfferMatch.discountPercentage))/100);
-            totalPriceUpdate += quantity * offerPrice;
-          }else if(proOfferMatch && !offerMatch){
-            const offerPrice = proData.price - ((proData.price * proOfferMatch.discountPercentage)/100);
-            totalPriceUpdate += quantity * offerPrice;
-          }else if(offerMatch && !proOfferMatch){
-            const offerPrice = proData.price - ((proData.price * offerMatch.discountPercentage )/100);
-            totalPriceUpdate += quantity * offerPrice;
+                  const products = cartData.products;
+                  let totalPriceUpdate = 0;
+                  for(const item of products){
+                    const productId = item.productId._id;
+                    const proData = await Product.findOne({_id:productId});
+                    const quantity = item.count;
+                    const proOfferMatch = productOffer.find((x) => x.productName.equals(productId));
+                    const offerMatch = categoryOffer.find((x) => x.category._id.equals(proData.category));
+                    if(proOfferMatch && offerMatch){
+                      const offerPrice = proData.price - ((proData.price * (offerMatch.discountPercentage + proOfferMatch.discountPercentage))/100);
+                      totalPriceUpdate += quantity * offerPrice;
+                    }else if(proOfferMatch && !offerMatch){
+                      const offerPrice = proData.price - ((proData.price * proOfferMatch.discountPercentage)/100);
+                      totalPriceUpdate += quantity * offerPrice;
+                    }else if(offerMatch && !proOfferMatch){
+                      const offerPrice = proData.price - ((proData.price * offerMatch.discountPercentage )/100);
+                      totalPriceUpdate += quantity * offerPrice;
+                    }else{
+                      totalPriceUpdate += quantity * proData.price;
+                    }
+                  }
+
+                  const total = await Cart.aggregate([
+                    { $match: { user: userName.name } },
+                    { $unwind: "$products" },
+                    {
+                      $project: {
+                        productPrice: "$products.productPrice",
+                        cou: "$products.count",
+                      },
+                    },
+                    {
+                      $group: {
+                        _id: null,
+                        total: { $sum: { $multiply: ["$productPrice", "$count"] } },
+                      },
+                    },
+                  ]);
+                  
+                  const Total = total[0].total;
+                  const userId = userName._id;
+                  let customer = true;
+                  
+                  res.render("./user/cart", { customer, userName, products, Total, userId ,category, categoryOffer, productOffer, totalPriceUpdate,cartData});
+              } else {
+                res.render('./user/cartEmpty', { customer: true,userName,message: "No products added to cart"});
+              }
           }else{
-            totalPriceUpdate += quantity * proData.price;
+            res.render('./user/cartEmpty', { customer: true,userName,message: "No products added to cart"});
           }
-         }
-
-        const total = await Cart.aggregate([
-          { $match: { user: userName.name } },
-          { $unwind: "$products" },
-          {
-            $project: {
-              productPrice: "$products.productPrice",
-              cou: "$products.count",
-            },
-          },
-          {
-            $group: {
-              _id: null,
-              total: { $sum: { $multiply: ["$productPrice", "$count"] } },
-            },
-          },
-        ]);
-
-        const Total = total[0].total;
-        const userId = userName._id;
-        let customer = true;
-        
-        res.render("./user/cart", { customer, userName, products, Total, userId ,category, categoryOffer, productOffer, totalPriceUpdate,cartData});
-    } else {
-      res.render('./user/cartEmpty', {
-        customer: true,
-        userName,
-        message: "No products added to cart"
-      });
-    }
+      } else { 
+        res.redirect('/login')
+      }
   } catch (error) {
     console.log(error.message);
   }

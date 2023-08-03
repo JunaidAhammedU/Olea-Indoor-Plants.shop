@@ -7,9 +7,9 @@
                         <h2 class="content-title card-title">Dashboard</h2>
                         <p>Whole data about your business here</p>
                     </div>
-                    <div>
+                    <!-- <div>
                         <a href="#" class="btn btn-primary"><i class="text-muted material-icons md-post_add"></i>Create report</a>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="row">
                     <div class="col-lg-3">
@@ -30,7 +30,7 @@
                                 <span class="icon icon-sm rounded-circle bg-success-light"><i class="text-success material-icons md-local_shipping"></i></span>
                                 <div class="text">
                                     <h6 class="mb-1 card-title">Orders</h6>
-                                    <span>53.668</span>
+                                    <span><%= orderCount %></span>
                                     <span class="text-sm"> Excluding orders in transit </span>
                                 </div>
                             </article>
@@ -42,8 +42,8 @@
                                 <span class="icon icon-sm rounded-circle bg-warning-light"><i class="text-warning material-icons md-qr_code"></i></span>
                                 <div class="text">
                                     <h6 class="mb-1 card-title">Products</h6>
-                                    <span>9.856</span>
-                                    <span class="text-sm"> In 19 Categories </span>
+                                    <span><%= productCount %></span>
+                                    <span class="text-sm"> In <%= categoryCount %> Categories </span>
                                 </div>
                             </article>
                         </div>
@@ -151,7 +151,7 @@
             datasets: [
                 {
                     label: "Qauntity",
-                    backgroundColor:["#6312cc","#465063","#65910d","#e67c12","#0ca6cc","#0ca6cc"],
+                    backgroundColor:["#6312cc","#39CAF0","#65910d","#e67c12","#0ca6cc","#0ca6cc"],
                     barThickness:10,
                     data: catQty
                 }
@@ -174,6 +174,7 @@
         });
     } //end if
 
+    // Payment method.
     if ($('#myChart3').length) {
         var ctx = document.getElementById("myChart3");
         var myChart = new Chart(ctx, {

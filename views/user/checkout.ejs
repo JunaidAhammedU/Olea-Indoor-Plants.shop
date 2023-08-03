@@ -35,7 +35,7 @@
                             <h2 class="title-2">Payment Method</h2>
                             <div id="checkout_accordion_1">
                                 <!-- card -->
-                                <% if (userName.wallet > 50) { %>
+                                <% if (userName.wallet >= totalPriceUpdate ) { %>
                                     <div class="card">
                                         <h5 class="ltn__card-title" data-bs-toggle="collapse" data-bs-target="#faq-item-2-2" aria-expanded="true"><input type="radio" class="payment_method_radio" id="payment_wallet" name="payment_method" value="wallet">
                                             Available Wallet Money.
@@ -47,6 +47,7 @@
                                         </div>
                                     </div> 
                                 <% } %>
+
                                 <!-- card -->
                                 <div class="card">
                                     <h5 class="ltn__card-title" data-bs-toggle="collapse" data-bs-target="#faq-item-2-2" aria-expanded="true"><input type="radio" class="payment_method_radio" id="payment_cod" name="payment_method" value="COD">

@@ -59,7 +59,9 @@ const admindDoLogout = (req, res) => {
 //load Dashboard
 const loadDashboard = async (req, res) => {
   try {
-    
+        const productCount = await Product.count();
+        const categoryCount = await Category.count();
+        const orderCount = await Order.count();
         const today = new Date();
         today.setHours( 0, 0, 0, 0 )
         const yesterday = new Date(today)
@@ -69,6 +71,7 @@ const loadDashboard = async (req, res) => {
         const currentMonth = now.getMonth();
         const currentMonthStartDate = new Date(currentYear, currentMonth, 1, 0, 0, 0);
     //---------
+    
     const promises = [
       dashboardHelper.totalRevenue(),
       dashboardHelper.paymentMethod(),
@@ -98,7 +101,10 @@ const loadDashboard = async (req, res) => {
        codPayAmount : codPayAmount,
        dailyChart:dailyChart,
        categorySales : categorySales,     
-       monthTotalRevenue:monthTotalRevenue
+       monthTotalRevenue:monthTotalRevenue,
+       productCount:productCount,
+       categoryCount:categoryCount,
+       orderCount:orderCount
       });
 
   } catch (error) {

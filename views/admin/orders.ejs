@@ -118,6 +118,7 @@
                                             <% if (orderItem.status === "returned") { %>
                                                 <div class="dropdown-menu">
                                                     <a class="dropdown-item" href="/admin/view_orders/<%= orderItem._id%>">View Orders</a>
+                                                    <a class="dropdown-item" href="/admin/reShip/<%= orderItem._id%>">Re Ship</a>
                                                 </div>
                                             
                                             <% } %>
