@@ -367,9 +367,15 @@
                         <div class="account-login-inner">
                             <form method="POST" action="/verification" class="ltn__form-box contact-form-box">
                                 <input type="text" name="otp" placeholder="Enter your OTP">
+
+                                <div class="mb-3 d-flex">
+                                    <a href="/resendOtp?email=<%= email %>" id="reSend" hidden>Resend OTP ?.</a>
+                                    <p href="/resendOtp?email=<%= email %>" id="reSendp" >Resend OTP ?.</p>
+                                    <span class="ml-3 mt-0 m-b-0" id="timer" class="align-items-center">10</span>
+                                </div>
+
                                 <div class="btn-wrapper text-center">
-                                    <button class="theme-btn-1 btn reverse-color btn-block"
-                                        type="submit">CONFIRM</button>
+                                    <button class="theme-btn-1 btn reverse-color btn-block" type="submit">CONFIRM</button>
                                 </div>
                             </form>
                         </div>
@@ -377,5 +383,35 @@
                 </div>
             </div>
         </div>
+    <!-- ------------------------------ -->
+    <!-- ------------------------------ -->
+    <script>
+        // Function to start the timer
+        function startTimer() {
+            let seconds = 30;
+            const timerElement = document.getElementById('timer');
+      
+            function updateTimer() {
+                timerElement.innerText = " "+seconds;
+                seconds--;
+      
+                if (seconds < 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('reSend').removeAttribute('hidden')
+                    document.getElementById('reSendp').setAttribute('hidden',true)
+                    document.getElementById('timer').setAttribute('hidden',true)
+                    // timerElement.innerText = '<a href="/resendOtp?email=">Resend OTP ?</a>';
+                }
+            }
+
+            updateTimer(); // Initial update
+      
+            // Update the timer every second
+            const timerInterval = setInterval(updateTimer, 1000);
+        }
+      
+        // Start the timer when the page loads
+        window.onload = startTimer;
+      </script>
         <!--  otp-page AREA END -->
         <%- include('../partials/userPartials/footer.ejs') %>

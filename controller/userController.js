@@ -1,5 +1,5 @@
 const UserVerification = require("../models/userVerification");
-const loginOtpHelper = require("../helpers/loginOtp");
+const otpHelper = require("../helpers/otpHelper");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const User = require("../models/userModel");
@@ -90,7 +90,7 @@ const doRegister = async (req, res) => {
     let email = req.body.email;
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
-      res.send("user allready exist!!!")
+      res.json({existUser:true});
     } else {
       const PASSWORD = await securePassword(req.body.password);
       const { name, lastName, email } = req.body;
@@ -103,8 +103,8 @@ const doRegister = async (req, res) => {
       });
       const savedUser = await userData.save();
       if (savedUser) {
-        await sendOTPVerificationEmail(email);
-        res.render("./user/otpVerify");
+        await registerOtpSend(email);
+        res.render("./user/otpVerify",{email});
       } else {
         console.log("Data not received");
       }
@@ -115,7 +115,7 @@ const doRegister = async (req, res) => {
 };
 
 // Send OTP verification email
-const sendOTPVerificationEmail = async (email) => {
+const registerOtpSend = async (email) => {
   try {
     const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
     const mailOptions = {
@@ -135,6 +135,23 @@ const sendOTPVerificationEmail = async (email) => {
     console.log("Error sending OTP verification email:", error.message);
   }
 };
+
+// resend Otp
+const resendOtp = async (req,res)=>{
+  try {
+    const email = req.query.email;
+    const userData = await User.findOne({email:email});
+    if(userData){
+      let resendOtp = await otpHelper.ResendOtp(email);
+      await UserVerification.findOneAndUpdate({email:email},{$set:{otp:resendOtp}})
+      res.render("./user/otpVerify",{email});
+    }else{
+      res.redirect('/register');
+    }
+  } catch (error) {
+    console.log("Error sending OTP verification email:", error.message);
+  }
+}
 
 
 //do Verify
@@ -205,7 +222,7 @@ const doLogin = async (req, res) => {
 const loadLoginOtpPage = async (req,res)=>{
   try {
     const loginData = req.session.loginData;
-    let loginOtpData = await loginOtpHelper.sendLoginOTPEmail(loginData);
+    let loginOtpData = await otpHelper.sendLoginOTPEmail(loginData);
     res.render("./user/loginOtpVerify",{loginOtpData:loginOtpData});
     req.session.loginData = null;
   } catch (error) {
@@ -564,5 +581,6 @@ module.exports = {
   doForOtpVerify,
   forgetPassword,
   loadLoginOtpPage,
-  loginOtp
+  loginOtp,
+  resendOtp
 };

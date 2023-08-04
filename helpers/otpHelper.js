@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 });
 
 
-
+// Login Otp sending
 let Lotp = "";
 const sendLoginOTPEmail = async (email) => {
   try {
@@ -34,6 +34,27 @@ const sendLoginOTPEmail = async (email) => {
 };
 
 
+// Resend Otp sending
+let Rotp = "";
+const ResendOtp = async (email) => {
+  try {
+    Rotp = `${Math.floor(1000 + Math.random() * 9000)}`;
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Olea Forget OTP Verification",
+      text: `Your OTP is ${Rotp}. Please enter this OTP to verify your account.`,
+    };
+    await transporter.sendMail(mailOptions);
+    console.log("Resend otp sent to user : " + Rotp);
+  } catch (error) {
+    console.log("Error sending OTP verification email:", error.message);
+  }
+  return Rotp;
+};
+
+
 module.exports = {
-    sendLoginOTPEmail
+    sendLoginOTPEmail,
+    ResendOtp
 }

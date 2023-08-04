@@ -21,6 +21,8 @@ userRouter.use(session({
 //GET method // routes in user side.
 userRouter.get('/',userController.loadHome);
 userRouter.get('/register',userController.loadRegisterPage);
+userRouter.get('/resendOtp',userController.resendOtp);
+
 userRouter.get('/login',userAuth.isLogout,userController.loadLoginPage);
 userRouter.get('/loadLoginOtpPage',userAuth.isLogout,userController.loadLoginOtpPage);
 userRouter.get('/logout',userController.doLogout);
@@ -37,7 +39,6 @@ userRouter.get('/wishlist',userAuth.isLogin,wishlistController.loadWishlist);
 userRouter.get('/removeWishlist/:id',userAuth.isLogin,wishlistController.removeWishlist);
 userRouter.get('/addFromWish/:id',userAuth.isLogin,wishlistController.addFromWish);
 userRouter.get('/return_order',userAuth.isLogin,orderController.returnOrders);
-
 
 
 //POST method // routes in user side.
