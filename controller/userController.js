@@ -84,9 +84,11 @@ const loadRegisterPage = async (req, res) => {
   }
 };
 
+
 // Do Register
 const doRegister = async (req, res) => {
   try {
+  
     let email = req.body.email;
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
@@ -110,7 +112,7 @@ const doRegister = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log("Error in doRegister:", error);
+    console.log(error);
   }
 };
 

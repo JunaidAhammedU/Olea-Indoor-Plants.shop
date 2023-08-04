@@ -22,7 +22,6 @@ userRouter.use(session({
 userRouter.get('/',userController.loadHome);
 userRouter.get('/register',userController.loadRegisterPage);
 userRouter.get('/resendOtp',userController.resendOtp);
-
 userRouter.get('/login',userAuth.isLogout,userController.loadLoginPage);
 userRouter.get('/loadLoginOtpPage',userAuth.isLogout,userController.loadLoginOtpPage);
 userRouter.get('/logout',userController.doLogout);

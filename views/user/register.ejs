@@ -260,14 +260,14 @@
             <div class="row">
                 <div class="col-lg-6 offset-lg-3">
                     <div class="account-login-inner">
-                        <form class="ltn__form-box contact-form-box" onsubmit="return validateForm()">
+                        <form action="/register" method="post" class="ltn__form-box contact-form-box" id="registerData" onsubmit="return validateForm()">
                             <input type="text" id="name"  name="name" placeholder="First Name">
                             <input type="text" id="lastName"  name="lastName" placeholder="Last Name">
                             <input type="email" id="email" name="email" placeholder="Email*">
                             <input type="password" id="password" name="password" placeholder="Password*">
                             <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password*">
                             <div class="btn-wrapper">
-                               <a href="/views/user/otpVerify.ejs"><button class="theme-btn-1 btn reverse-color btn-block" type="submit" onclick="formSubmit()">CREATE ACCOUNT</button></a>
+                               <a href="/views/user/otpVerify.ejs"><button class="theme-btn-1 btn reverse-color btn-block" type="submit">CREATE ACCOUNT</button></a>
                             </div>
                         </form>
                         <div class="by-agree text-center">
@@ -515,7 +515,7 @@
             }
         </script>
 <!-- ---------------------------------------------------------- -->
-        <script>
+        <!-- <script>
 
             toastr.options = {
             "closeButton": true,
@@ -533,31 +533,34 @@
             "showMethod": "slideDown",
             "hideMethod": "fadeOut"
         };
-            function formSubmit() {
-            var firstName = document.getElementsByName("name")[0];
-            var lastName = document.getElementsByName("lastName")[0];
-            var email = document.getElementsByName("email")[0];
-            var password = document.getElementsByName("password")[0];
-            
+        function formSubmit(event) {
+           // Prevent the default form submission
+
+            var name = document.getElementById("name").value;
+            var lastName = document.getElementById("lastName").value;
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+
             $.ajax({
-                url:'/register',
-                method:'post',
-                data:{
-                    firstName,
-                    lastName,
-                    email,
-                    password,
+                url: '/register',
+                method: 'post',
+                data: {
+                    name: name,
+                    lastName: lastName,
+                    email: email,
+                    password: password
                 },
-                success:(response)=>{
-                    if(response.existUser === true){
-                        toastr.error("This user is already exist, Choose another Email!");
-                        location.reload()
-                    }{
-                        toastr.error("Registration completed");
+                success: function(response) {
+                    if (response.existUser === true) {
+                         toastr.error("This user already exists. Please type another email!");
+                    } else {
+                        toastr.success("Registration completed");
+                         window.location.href = "/otpVerify";
                     }
                 }
-            })
-            }
+            });
+        } -->
+
 
         </script>
 
