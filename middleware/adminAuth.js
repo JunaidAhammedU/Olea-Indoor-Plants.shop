@@ -8,7 +8,7 @@ const isLogin = (req, res, next) => {
 
 const isLogout = (req, res, next) => {
   if (req.session.admin_id) {
-    res.redirect("/admin/dashboard");
+    return res.redirect("/admin/dashboard");
   }
   next();
 };

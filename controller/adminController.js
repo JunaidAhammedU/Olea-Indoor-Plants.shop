@@ -90,10 +90,8 @@ const loadDashboard = async (req, res) => {
     const monthTotalRevenue = results[4]
 
     //---------
-    console.log(paymentMethod)
-
-    const codPayAmount = paymentMethod && paymentMethod.length > 0 ? paymentMethod[1].amount.toString() : 0
-    const onlinePayment = paymentMethod && paymentMethod.length > 0 ? paymentMethod[2].amount.toString() : 0
+    const codPayAmount = paymentMethod && paymentMethod.length > 0 ? paymentMethod[0].amount.toString() : 0
+    const onlinePayment = paymentMethod && paymentMethod.length > 0 ? paymentMethod[1].amount.toString() : 0
     
 
     // rendering the admin dashboard
