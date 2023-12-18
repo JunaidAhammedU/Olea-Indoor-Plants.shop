@@ -5,17 +5,15 @@ const nodemailer = require("nodemailer");
 const User = require("../models/userModel");
 const Product = require("../models/productsModel");
 const Categories = require("../models/categoriesModel");
-const ProductOffer = require("../models/productOfferModel")
-const Offer = require("../models/categorieOfferModel")
-const Banner = require("../models/bannerModel")
+const ProductOffer = require("../models/productOfferModel");
+const Offer = require("../models/categorieOfferModel");
+const Banner = require("../models/bannerModel");
 const Order = require("../models/orderModel");
-const Cart = require('../models/cartModel');
-const Address = require('../models/addressModel');
+const Cart = require("../models/cartModel");
+const Address = require("../models/addressModel");
 require("dotenv").config();
 
 //---------------------------------------------------------------
-
-
 
 // Setup bcrypt password
 const securePassword = async (password) => {
@@ -27,7 +25,6 @@ const securePassword = async (password) => {
   }
 };
 
-
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -36,8 +33,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.PASS,
   },
 });
-
-
 
 // Loading Home Page
 const loadHome = async (req, res) => {
@@ -48,28 +43,46 @@ const loadHome = async (req, res) => {
 
     const currentDate = new Date();
     const categoryOfferCheck = await Offer.find();
-    
+
     for (const offer of categoryOfferCheck) {
       if (offer.endDate <= currentDate) {
-        await Offer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+        await Offer.updateOne(
+          { _id: offer._id },
+          { $set: { status: "Expired" } }
+        );
       } else {
-        await Offer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+        await Offer.updateOne(
+          { _id: offer._id },
+          { $set: { status: "Active" } }
+        );
       }
     }
 
     const productOfferCheck = await ProductOffer.find();
     for (const offer of productOfferCheck) {
       if (offer.endDate <= currentDate) {
-        await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+        await ProductOffer.updateOne(
+          { _id: offer._id },
+          { $set: { status: "Expired" } }
+        );
       } else {
-        await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+        await ProductOffer.updateOne(
+          { _id: offer._id },
+          { $set: { status: "Active" } }
+        );
       }
     }
 
     const categoryOffer = await Offer.find({ status: "Active" });
     const productOffer = await ProductOffer.find({ status: "Active" });
 
-    res.render("./user/index", { userId, products: productData, bannerData:bannerData,categoryOffer,productOffer});
+    res.render("./user/index", {
+      userId,
+      products: productData,
+      bannerData: bannerData,
+      categoryOffer,
+      productOffer,
+    });
   } catch (error) {
     console.log("Error loading Home page:", error);
   }
@@ -84,15 +97,13 @@ const loadRegisterPage = async (req, res) => {
   }
 };
 
-
 // Do Register
 const doRegister = async (req, res) => {
   try {
-  
     let email = req.body.email;
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
-      res.json({existUser:true});
+      res.json({ existUser: true });
     } else {
       const PASSWORD = await securePassword(req.body.password);
       const { name, lastName, email } = req.body;
@@ -106,7 +117,7 @@ const doRegister = async (req, res) => {
       const savedUser = await userData.save();
       if (savedUser) {
         await registerOtpSend(email);
-        res.render("./user/otpVerify",{email});
+        res.render("./user/otpVerify", { email });
       } else {
         console.log("Data not received");
       }
@@ -139,22 +150,24 @@ const registerOtpSend = async (email) => {
 };
 
 // resend Otp
-const resendOtp = async (req,res)=>{
+const resendOtp = async (req, res) => {
   try {
     const email = req.query.email;
-    const userData = await User.findOne({email:email});
-    if(userData){
+    const userData = await User.findOne({ email: email });
+    if (userData) {
       let resendOtp = await otpHelper.ResendOtp(email);
-      await UserVerification.findOneAndUpdate({email:email},{$set:{otp:resendOtp}})
-      res.render("./user/otpVerify",{email});
-    }else{
-      res.redirect('/register');
+      await UserVerification.findOneAndUpdate(
+        { email: email },
+        { $set: { otp: resendOtp } }
+      );
+      res.render("./user/otpVerify", { email });
+    } else {
+      res.redirect("/register");
     }
   } catch (error) {
     console.log("Error sending OTP verification email:", error.message);
   }
-}
-
+};
 
 //do Verify
 const doVerify = async (req, res) => {
@@ -178,7 +191,6 @@ const doVerify = async (req, res) => {
   }
 };
 
-
 // Loading Login Page
 const loadLoginPage = async (req, res) => {
   try {
@@ -192,26 +204,25 @@ const loadLoginPage = async (req, res) => {
   }
 };
 
-
 // Do login
 const doLogin = async (req, res) => {
   try {
-    const { email, password } = req.body; 
+    const { email, password } = req.body;
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       if (existingUser.is_blocked === false) {
         const PASSWORD = await bcrypt.compare(password, existingUser.password);
         if (PASSWORD) {
-            req.session.loginData = email;
+          req.session.loginData = email;
           res.redirect("/loadLoginOtpPage");
         } else {
           res.render("./user/login", { message: "invalid email or password" });
         }
       } else {
         res.render("./user/login", { message: "Your account is blocked!!" });
-      } 
+      }
     } else {
-      res.render("./user/login", { message: "invalid email or password" }); 
+      res.render("./user/login", { message: "invalid email or password" });
     }
   } catch (error) {
     console.error("Error occurred while loading doLogin ", error);
@@ -219,25 +230,23 @@ const doLogin = async (req, res) => {
   }
 };
 
-
 // Load Login Otp page
-const loadLoginOtpPage = async (req,res)=>{
+const loadLoginOtpPage = async (req, res) => {
   try {
     const loginData = req.session.loginData;
     let loginOtpData = await otpHelper.sendLoginOTPEmail(loginData);
-    res.render("./user/loginOtpVerify",{loginOtpData:loginOtpData});
+    res.render("./user/loginOtpVerify", { loginOtpData: loginOtpData });
     req.session.loginData = null;
   } catch (error) {
     console.error("Error occurred while loading doLogin ", error);
     res.status(500).send("Error occurred while loading doLogin.");
   }
-}
-
+};
 
 // OTP verification in Login Page
-const loginOtp = async (req,res)=>{
+const loginOtp = async (req, res) => {
   try {
-    const userData = await User.findOne({ email: req.body.userData});
+    const userData = await User.findOne({ email: req.body.userData });
     if (userData && req.body.otp === req.body.userOtp) {
       req.session.user_id = userData._id; // session keeping.
       res.redirect("/");
@@ -249,9 +258,7 @@ const loginOtp = async (req,res)=>{
     console.error("Error occurred Post OTP doLogin ", error);
     res.status(500).send("Error occurred Post OTP doLogin.");
   }
-}
-
-
+};
 
 // Do logout
 const doLogout = async (req, res) => {
@@ -270,40 +277,57 @@ const loadProductDetailsPage = async (req, res) => {
     let userId = req.session.user_id;
     const productId = req.params.productId;
     const productData = await Product.findOne({ _id: productId });
-    const catData = await Categories.findById({_id:productData.category})
+    const catData = await Categories.findById({ _id: productData.category });
     const catName = catData.categorieName;
 
     const currentDate = new Date();
     const categoryOfferCheck = await Offer.find();
     for (const offer of categoryOfferCheck) {
       if (offer.endDate <= currentDate) {
-        await Offer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+        await Offer.updateOne(
+          { _id: offer._id },
+          { $set: { status: "Expired" } }
+        );
       } else {
-        await Offer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+        await Offer.updateOne(
+          { _id: offer._id },
+          { $set: { status: "Active" } }
+        );
       }
     }
 
     const productOfferCheck = await ProductOffer.find();
     for (const offer of productOfferCheck) {
       if (offer.endDate <= currentDate) {
-        await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+        await ProductOffer.updateOne(
+          { _id: offer._id },
+          { $set: { status: "Expired" } }
+        );
       } else {
-        await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+        await ProductOffer.updateOne(
+          { _id: offer._id },
+          { $set: { status: "Active" } }
+        );
       }
     }
 
     const categoryOffer = await Offer.find({ status: "Active" });
     const productOffer = await ProductOffer.find({ status: "Active" });
 
-    res.render("./user/product-details", { userId, product: productData,catName,categoryOffer,productOffer });
+    res.render("./user/product-details", {
+      userId,
+      product: productData,
+      catName,
+      categoryOffer,
+      productOffer,
+    });
   } catch (error) {
     console.error("Error occurred while loading product details page ", error);
     res.status(500).send("Error occurred while loading product details page.");
   }
 };
 
-
- // Load Shop page
+// Load Shop page
 const loadShopPage = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
@@ -319,19 +343,26 @@ const loadShopPage = async (req, res) => {
     let cat = categoryData.map((category) => category.categorieName);
 
     let sort;
-    category === "All" ? (category = [...cat]) : (category = req.query.category.split(","));
+    category === "All"
+      ? (category = [...cat])
+      : (category = req.query.category.split(","));
     req.query.value === "High" ? (sort = -1) : (sort = 1);
     let catId = [];
 
     for (let i = 0; i < categoryData.length; i++) {
-      if (category.includes(categoryData[i].categorieName) || category === "All") {
+      if (
+        category.includes(categoryData[i].categorieName) ||
+        category === "All"
+      ) {
         catId.push(categoryData[i]._id);
       }
     }
 
     const searchQuery = req.query.search || "";
 
-    const searchFilter = searchQuery.trim() ? { name: { $regex: new RegExp(searchQuery, "i") } } : {};
+    const searchFilter = searchQuery.trim()
+      ? { name: { $regex: new RegExp(searchQuery, "i") } }
+      : {};
 
     const productData = await Product.aggregate([
       {
@@ -353,24 +384,34 @@ const loadShopPage = async (req, res) => {
     });
     const totalPage = Math.max(1, Math.ceil(productCount / limit));
 
-
     const currentDate = new Date();
     const categoryOfferCheck = await Offer.find();
     for (const offer of categoryOfferCheck) {
-      
       if (offer.endDate <= currentDate) {
-        await Offer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+        await Offer.updateOne(
+          { _id: offer._id },
+          { $set: { status: "Expired" } }
+        );
       } else {
-        await Offer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+        await Offer.updateOne(
+          { _id: offer._id },
+          { $set: { status: "Active" } }
+        );
       }
     }
 
     const productOfferCheck = await ProductOffer.find();
     for (const offer of productOfferCheck) {
       if (offer.endDate <= currentDate) {
-        await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Expired" } });
+        await ProductOffer.updateOne(
+          { _id: offer._id },
+          { $set: { status: "Expired" } }
+        );
       } else {
-        await ProductOffer.updateOne({ _id: offer._id }, { $set: { status: "Active" } });
+        await ProductOffer.updateOne(
+          { _id: offer._id },
+          { $set: { status: "Active" } }
+        );
       }
     }
 
@@ -416,39 +457,43 @@ const loadShopPage = async (req, res) => {
 };
 
 // Load Account Page
-const loadAccountPage = async (req,res)=>{
+const loadAccountPage = async (req, res) => {
   try {
     const userId = req.session.user_id;
     if (userId) {
       const user = await User.findById(req.session.user_id);
       const orders = await Order.find({ userId });
-      const addressData = await Address.findOne({userId});
+      const addressData = await Address.findOne({ userId });
       const address = addressData.addresses;
-      res.render('./user/account.ejs',{user,order:orders,address});
+      res.render("./user/account.ejs", { user, order: orders, address });
     } else {
-      res.redirect('/logout');
+      res.redirect("/logout");
     }
   } catch (error) {
-    console.log('load error in account page');
+    console.log("load error in account page");
   }
-}
+};
 
 // change user acount details
 const changeAcctDetails = async (req, res) => {
   try {
     if (req.session.user_id) {
-      const { name, lastName, email, currentPassword, password, confirmPass } = req.body;
-      
+      const { name, lastName, email, currentPassword, password, confirmPass } =
+        req.body;
+
       const existingUser = await User.findById(req.session.user_id);
       if (!existingUser) {
-        return res .redirect("/logout");
+        return res.redirect("/logout");
       }
-      const Password = await bcrypt.compare(currentPassword, existingUser.password);
+      const Password = await bcrypt.compare(
+        currentPassword,
+        existingUser.password
+      );
 
       if (!Password) {
         return res.send("Your current password is wrong.");
       }
-      
+
       if (password !== confirmPass) {
         return res.send("Your new password and confirm password do not match.");
       }
@@ -460,11 +505,11 @@ const changeAcctDetails = async (req, res) => {
             name,
             lastName,
             email,
-            password:newPassword,
+            password: newPassword,
           },
         }
       );
-      res.redirect('/logout');
+      res.redirect("/logout");
     } else {
       res.redirect("/logout");
     }
@@ -473,7 +518,6 @@ const changeAcctDetails = async (req, res) => {
     res.send("An error occurred while updating account details.");
   }
 };
-
 
 // forget password otp genarating.
 let Fotp = "";
@@ -494,40 +538,39 @@ const sendForgetOTPEmail = async (email) => {
   }
 };
 
-// forget password 
-const loadForgetPassword = async (req,res)=>{
+// forget password
+const loadForgetPassword = async (req, res) => {
   try {
-    res.render('./user/verificationEmail');
+    res.render("./user/verificationEmail");
   } catch (error) {
     console.log("reset password error");
   }
-}
+};
 
-// forget password 
-const doforgetPassword = async (req,res)=>{
+// forget password
+const doforgetPassword = async (req, res) => {
   try {
-    const userData = await User.findOne({email:req.body.email});
+    const userData = await User.findOne({ email: req.body.email });
     if (userData) {
-      Fotp = ""
+      Fotp = "";
       sendForgetOTPEmail(userData.email);
-      res.render("./user/forgtOtpVerify",{user:userData});
+      res.render("./user/forgtOtpVerify", { user: userData });
     } else {
-      res.redirect('/verificationEmail');
+      res.redirect("/verificationEmail");
       alert("invalid email");
     }
   } catch (error) {
     console.log("reset password error");
-
   }
-}
+};
 
 // forget pss otp verifivation.
 const doForOtpVerify = async (req, res) => {
   try {
     const otp = req.body.otp;
-    const userData = await User.findOne({_id:req.query.id});
+    const userData = await User.findOne({ _id: req.query.id });
     if (Fotp === otp) {
-      res.render('./user/forget_password',{user:userData});
+      res.render("./user/forget_password", { user: userData });
     } else {
       res.redirect("/register");
     }
@@ -536,35 +579,34 @@ const doForOtpVerify = async (req, res) => {
   }
 };
 
-// forget password 
-const forgetPassword = async(req,res)=>{
+// forget password
+const forgetPassword = async (req, res) => {
   try {
-    const {password , confirmPassword} = req.body;
+    const { password, confirmPassword } = req.body;
     const userId = req.query.id;
 
     if (password === confirmPassword) {
       const newPass = await securePassword(password);
       if (newPass) {
-        await User.findByIdAndUpdate({_id:userId},
+        await User.findByIdAndUpdate(
+          { _id: userId },
           {
-          $set:
-          {
-            password:newPass,
+            $set: {
+              password: newPass,
+            },
           }
-        })
-        res.redirect('/login');
+        );
+        res.redirect("/login");
       } else {
         console.log("not working secure password!");
       }
     } else {
-      res.redirect('/forget_password');
+      res.redirect("/forget_password");
     }
   } catch (error) {
     console.log("forget password not working!");
   }
-}
-
-
+};
 
 module.exports = {
   loadHome,
@@ -584,5 +626,5 @@ module.exports = {
   forgetPassword,
   loadLoginOtpPage,
   loginOtp,
-  resendOtp
+  resendOtp,
 };
