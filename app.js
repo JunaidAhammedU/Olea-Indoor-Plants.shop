@@ -27,5 +27,5 @@ app.use("/admin", adminRoute);
 
 //server
 app.listen(process.env.PORT, () => {
-  console.log("running...");
+  console.log(`running...${process.env.PORT}`);
 });
