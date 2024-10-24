@@ -39,7 +39,7 @@ adminRouter.get('/userBlock/:userId',adminAuth.isLogin,adminController.usersBloc
 adminRouter.get('/userUnblock/:userId',adminAuth.isLogin,adminController.usersUnblock);
 // adminRouter.get('/reShip/:orderId',adminAuth.isLogin,orderController.reShipOrder);
 adminRouter.get('/view_orders/:orderId',adminAuth.isLogin,adminController.viewOrders);
-
+ 
 adminRouter.get('/orders',adminAuth.isLogin,adminController.loadOrders);
 adminRouter.get('/placed_orders',adminAuth.isLogin,orderController.placedOrder);
 adminRouter.get('/deliverd_orders',adminAuth.isLogin,orderController.orderDeliverd);
